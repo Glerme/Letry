@@ -1,18 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query/keys';
-
-// Temporary until src/lib/validations/sign.ts is created (Task 3)
-type Sign = {
-  id: string;
-  slug: string;
-  text: string;
-  animation: string;
-  led_color: string;
-  bg_color: string;
-  speed: string;
-  user_id: string | null;
-  created_at: string;
-};
+import type { Sign } from '@/lib/query/types';
 
 const fetchSigns = async (): Promise<Sign[]> => {
   const response = await fetch('/api/signs');
