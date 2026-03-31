@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { PROTECTED_ROUTES } from '@/lib/utils/constants';
 
 export const updateSession = async (request: NextRequest) => {
   let supabaseResponse = NextResponse.next({ request });
@@ -28,11 +29,7 @@ export const updateSession = async (request: NextRequest) => {
   } = await supabase.auth.getUser();
 
   // Redirect unauthenticated users away from protected routes
-  if (
-    !user &&
-    (request.nextUrl.pathname.startsWith('/create') ||
-      request.nextUrl.pathname.startsWith('/dashboard'))
-  ) {
+  if (!user && PROTECTED_ROUTES.some((route) => request.nextUrl.pathname.startsWith(route))) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);

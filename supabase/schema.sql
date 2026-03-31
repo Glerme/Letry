@@ -3,7 +3,7 @@
 
 CREATE TABLE public.signs (
   id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  slug        VARCHAR(12) UNIQUE NOT NULL,
+  slug        VARCHAR(7) UNIQUE NOT NULL,
   text        VARCHAR(200) NOT NULL,
   animation   VARCHAR(20) NOT NULL DEFAULT 'scroll',
   led_color   VARCHAR(7) NOT NULL DEFAULT '#ff6600',
@@ -31,7 +31,8 @@ CREATE POLICY "Anyone can create signs"
 -- Only owner can update their sign
 CREATE POLICY "Owner can update their sign"
   ON signs FOR UPDATE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 -- Only owner can delete their sign
 CREATE POLICY "Owner can delete their sign"

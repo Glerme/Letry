@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { signSchema } from '@/lib/validations/sign';
+import { ANIMATIONS, SPEEDS } from '@/lib/utils/constants';
 
 describe('signSchema', () => {
   const validInput = {
@@ -41,14 +42,14 @@ describe('signSchema', () => {
   });
 
   it('accepts all valid animations', () => {
-    for (const anim of ['scroll', 'split-flap', 'fade']) {
+    for (const anim of ANIMATIONS) {
       const result = signSchema.safeParse({ ...validInput, animation: anim });
       expect(result.success).toBe(true);
     }
   });
 
   it('accepts all valid speeds', () => {
-    for (const speed of ['slow', 'normal', 'fast']) {
+    for (const speed of SPEEDS) {
       const result = signSchema.safeParse({ ...validInput, speed });
       expect(result.success).toBe(true);
     }

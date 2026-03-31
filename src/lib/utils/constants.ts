@@ -16,3 +16,5 @@ export const DEFAULT_ANIMATION: AnimationType = 'scroll';
 export const DEFAULT_SPEED: SpeedType = 'normal';
 
 export const MAX_TEXT_LENGTH = 200;
+
+export const PROTECTED_ROUTES = ['/create', '/dashboard'] as const;
