@@ -21,20 +21,7 @@ export const fadeAnimation: Animation = {
     const totalCols = textBitmap[0]?.length ?? 0;
     const frame = (state.frame ?? 0) + 1;
 
-    // Use probabilistic fade-in: each tick, randomly reveal more LEDs
-    const progress = Math.min(frame / FADE_IN_TICKS, 1);
-
-    const grid: boolean[][] = Array.from({ length: rows }, (_, row) =>
-      Array.from({ length: visibleCols }, (__, col) => {
-        const srcCol = col < totalCols ? col : -1;
-        const target = srcCol >= 0 ? (textBitmap[row][srcCol] ?? false) : false;
-        if (!target) return false;
-        // Reveal based on progress
-        return Math.random() < progress;
-      })
-    );
-
-    // After full fade-in, show exact bitmap and stay running (loops)
+    // Early exit: after full fade-in, show exact bitmap and loop
     if (frame >= FADE_IN_TICKS) {
       const finalGrid: boolean[][] = Array.from({ length: rows }, (_, row) =>
         Array.from({ length: visibleCols }, (__, col) => {
@@ -42,8 +29,19 @@ export const fadeAnimation: Animation = {
           return srcCol >= 0 ? (textBitmap[row][srcCol] ?? false) : false;
         })
       );
-      return { grid: finalGrid, running: true, frame: 0 }; // loop
+      return { grid: finalGrid, running: true, frame: 0 };
     }
+
+    // Probabilistic fade-in
+    const progress = Math.min(frame / FADE_IN_TICKS, 1);
+    const grid: boolean[][] = Array.from({ length: rows }, (_, row) =>
+      Array.from({ length: visibleCols }, (__, col) => {
+        const srcCol = col < totalCols ? col : -1;
+        const target = srcCol >= 0 ? (textBitmap[row][srcCol] ?? false) : false;
+        if (!target) return false;
+        return Math.random() < progress;
+      })
+    );
 
     return { grid, running: true, frame };
   },

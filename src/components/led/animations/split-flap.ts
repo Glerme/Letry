@@ -34,8 +34,6 @@ export const splitFlapAnimation: Animation = {
       return { grid: finalGrid, running: false, frame };
     }
 
-    const colProgress = (frame % FLIPS_PER_COL) / FLIPS_PER_COL;
-
     const grid: boolean[][] = Array.from({ length: rows }, (_, row) =>
       Array.from({ length: visibleCols }, (__, col) => {
         const srcCol = col < totalCols ? col : -1;
@@ -46,8 +44,8 @@ export const splitFlapAnimation: Animation = {
           return target;
         }
         if (col === currentCol) {
-          // Currently flipping column — random until settled
-          return Math.random() < colProgress ? target : !target;
+          // Flipping: show random state regardless of target
+          return Math.random() > 0.5;
         }
         // Not yet revealed
         return false;

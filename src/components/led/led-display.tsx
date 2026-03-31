@@ -75,15 +75,15 @@ export const LEDDisplay = ({
     const config = buildConfig(text, animationType, speed);
     animStateRef.current = anim.init(config);
     // Show first frame — allowed here because it mirrors the lazy initializer
-    setGrid([...animStateRef.current.grid]);
+    setGrid(animStateRef.current.grid.map((row) => [...row]));
 
     intervalRef.current = setInterval(() => {
       if (!animStateRef.current) return;
       animStateRef.current = anim.tick(animStateRef.current, config);
-      setGrid([...animStateRef.current.grid]);
+      setGrid(animStateRef.current.grid.map((row) => [...row]));
 
-      // Non-scroll animations stop when done
-      if (!animStateRef.current.running && animationType !== 'scroll') {
+      // Stop when animation signals it is done
+      if (!animStateRef.current.running) {
         if (intervalRef.current) clearInterval(intervalRef.current);
       }
     }, config.speedMs);

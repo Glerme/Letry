@@ -23,13 +23,15 @@ describe('fadeAnimation', () => {
     expect(state.running).toBe(true);
   });
 
-  it('after enough ticks, grid matches textBitmap', () => {
+  it('after FADE_IN_TICKS ticks, resets frame to 0 (loops)', () => {
     let state = fadeAnimation.init(config);
-    // Fade in over some ticks
-    for (let i = 0; i < 20; i++) {
+    // Run exactly FADE_IN_TICKS ticks
+    for (let i = 0; i < 8; i++) {
       state = fadeAnimation.tick(state, config);
     }
-    // Once faded in, running becomes false (or stays true for loop)
+    // Should have looped (frame reset to 0)
+    expect(state.frame).toBe(0);
+    expect(state.running).toBe(true);
     expect(state.grid).toHaveLength(2);
   });
 });
