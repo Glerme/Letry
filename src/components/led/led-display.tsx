@@ -9,7 +9,7 @@ interface LEDDisplayProps {
   speed: string;
 }
 
-export const LEDDisplay = ({ text, ledColor, bgColor }: LEDDisplayProps) => (
+export const LEDDisplay = ({ text, ledColor, bgColor, animation: _animation, speed: _speed }: LEDDisplayProps) => (
   <div
     className="flex items-center justify-center overflow-hidden p-8 rounded-lg min-h-[200px]"
     style={{ backgroundColor: bgColor }}

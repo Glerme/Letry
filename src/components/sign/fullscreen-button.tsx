@@ -4,12 +4,13 @@ import { useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 
 export const FullscreenButton = () => {
-  const toggleFullscreen = useCallback(async () => {
-    if (!document.fullscreenElement) {
-      await document.documentElement.requestFullscreen();
-    } else {
-      await document.exitFullscreen();
-    }
+  const toggleFullscreen = useCallback(() => {
+    const action = !document.fullscreenElement
+      ? document.documentElement.requestFullscreen()
+      : document.exitFullscreen();
+    action.catch(() => {
+      // Fullscreen request blocked by browser policy or user gesture requirement
+    });
   }, []);
 
   useEffect(() => {

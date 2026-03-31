@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
@@ -10,7 +11,7 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-const getSign = async (slug: string) => {
+const getSign = cache(async (slug: string) => {
   const supabase = await createClient();
   const { data } = await supabase
     .from('signs')
@@ -18,7 +19,7 @@ const getSign = async (slug: string) => {
     .eq('slug', slug)
     .single();
   return data;
-};
+});
 
 export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
   const { slug } = await params;
