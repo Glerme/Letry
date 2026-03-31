@@ -6,11 +6,18 @@ import { Input } from '@/components/ui/input';
 
 const loginAction = async (formData: FormData) => {
   'use server';
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
+  const email = formData.get('email');
+  const password = formData.get('password');
+
+  if (!email || !password) {
+    redirect('/login?error=Preencha%20todos%20os%20campos');
+  }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword({
+    email: email as string,
+    password: password as string,
+  });
 
   if (error) {
     redirect(`/login?error=${encodeURIComponent(error.message)}`);

@@ -12,9 +12,8 @@ interface ShareDialogProps {
 export const ShareDialog = ({ slug, onClose }: ShareDialogProps) => {
   const [copied, setCopied] = useState(false);
 
-  const shareUrl = slug
-    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/s/${slug}`
-    : '';
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? '';
+  const shareUrl = slug ? `${origin}/s/${slug}` : '';
 
   const handleCopy = async () => {
     if (!shareUrl) return;
@@ -44,11 +43,12 @@ export const ShareDialog = ({ slug, onClose }: ShareDialogProps) => {
             variant={copied ? 'secondary' : 'primary'}
             className="flex-1"
           >
-            {copied ? '✓ Copiado!' : 'Copiar link'}
+            {copied ? 'Copiado!' : 'Copiar link'}
           </Button>
           <Button
             variant="secondary"
-            onClick={() => window.open(shareUrl, '_blank')}
+            disabled={!shareUrl}
+            onClick={() => { if (shareUrl) window.open(shareUrl, '_blank'); }}
           >
             Abrir
           </Button>

@@ -6,13 +6,17 @@ import { Input } from '@/components/ui/input';
 
 const registerAction = async (formData: FormData) => {
   'use server';
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
+  const email = formData.get('email');
+  const password = formData.get('password');
+
+  if (!email || !password) {
+    redirect('/register?error=Preencha%20todos%20os%20campos');
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
-    email,
-    password,
+    email: email as string,
+    password: password as string,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/auth/callback`,
     },
