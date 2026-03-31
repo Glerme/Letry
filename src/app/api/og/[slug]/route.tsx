@@ -20,15 +20,22 @@ export const GET = async (
     }
   );
 
-  const { data: sign } = await supabase
+  const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
+  const safeColor = (value: string, fallback: string) =>
+    HEX_COLOR_RE.test(value) ? value : fallback;
+
+  const { data: sign, error } = await supabase
     .from('signs')
     .select('text, led_color, bg_color')
     .eq('slug', slug)
     .single();
 
-  if (!sign) {
+  if (error || !sign) {
     return new Response('Not found', { status: 404 });
   }
+
+  const ledColor = safeColor(sign.led_color, '#ff6600');
+  const bgColor = safeColor(sign.bg_color, '#111111');
 
   return new ImageResponse(
     (
@@ -39,7 +46,7 @@ export const GET = async (
           justifyContent: 'center',
           width: '100%',
           height: '100%',
-          backgroundColor: sign.bg_color,
+          backgroundColor: bgColor,
           padding: '40px',
         }}
       >
@@ -55,9 +62,9 @@ export const GET = async (
             style={{
               fontSize: '64px',
               fontWeight: 'bold',
-              color: sign.led_color,
+              color: ledColor,
               textAlign: 'center',
-              textShadow: `0 0 20px ${sign.led_color}, 0 0 40px ${sign.led_color}`,
+              textShadow: `0 0 20px ${ledColor}, 0 0 40px ${ledColor}`,
               maxWidth: '1000px',
             }}
           >

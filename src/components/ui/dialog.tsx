@@ -19,6 +19,15 @@ export const Dialog = ({ open, onClose, title, children }: DialogProps) => {
     return () => document.removeEventListener('keydown', handleKey);
   }, [open, onClose]);
 
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
   if (!open) return null;
 
   return (
@@ -37,7 +46,7 @@ export const Dialog = ({ open, onClose, title, children }: DialogProps) => {
             className="text-zinc-400 hover:text-white transition-colors"
             aria-label="Fechar"
           >
-            ✕
+            <span aria-hidden="true">✕</span>
           </button>
         </div>
         {children}
