@@ -1,50 +1,23 @@
-<svg width="640" height="160" viewBox="0 0 640 160" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">Letry logo</title>
-  <desc id="desc">Logo do Letry com ícone de painel LED e tipografia geométrica.</desc>
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Logo Letry</title>
+  <desc id="desc">Letra L em estilo neon com brilho ciano e magenta.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="640" y2="160" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0B1220"/>
-      <stop offset="1" stop-color="#121A2D"/>
+    <linearGradient id="neon" x1="28" y1="18" x2="102" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#57F4FF"/>
+      <stop offset="0.55" stop-color="#00E9FF"/>
+      <stop offset="1" stop-color="#FF4BD1"/>
     </linearGradient>
-    <linearGradient id="dot" x1="20" y1="20" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#34D399"/>
-      <stop offset="1" stop-color="#22D3EE"/>
-    </linearGradient>
+    <filter id="glow" x="0" y="0" width="128" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
 
-  <rect x="8" y="8" width="624" height="144" rx="28" fill="url(#bg)"/>
-
-  <g transform="translate(30 30)">
-    <rect width="100" height="100" rx="20" fill="#0A0F1C" stroke="#24314F" stroke-width="4"/>
-    <g fill="url(#dot)">
-      <circle cx="22" cy="22" r="6"/>
-      <circle cx="40" cy="22" r="6"/>
-      <circle cx="58" cy="22" r="6"/>
-      <circle cx="76" cy="22" r="6"/>
-
-      <circle cx="22" cy="40" r="6"/>
-      <circle cx="22" cy="58" r="6"/>
-      <circle cx="22" cy="76" r="6"/>
-
-      <circle cx="40" cy="76" r="6"/>
-      <circle cx="58" cy="76" r="6"/>
-      <circle cx="76" cy="76" r="6"/>
-    </g>
+  <g filter="url(#glow)">
+    <path d="M34 20V96H94" stroke="url(#neon)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
-
-  <g fill="url(#dot)">
-    <circle cx="181" cy="53" r="5"/>
-    <circle cx="181" cy="69" r="5"/>
-    <circle cx="181" cy="85" r="5"/>
-    <circle cx="181" cy="101" r="5"/>
-    <circle cx="197" cy="101" r="5"/>
-    <circle cx="213" cy="101" r="5"/>
-  </g>
-
-  <g fill="#E2E8F0">
-    <path d="M228 67h14v43h-14V67zm0-18h14v12h-14V49z"/>
-    <path d="M250 67h44v11h-15v32h-14V78h-15V67z"/>
-    <path d="M300 67h24c14 0 23 8 23 20 0 9-5 16-14 19l16 4v0h-16l-14-4h-5v4h-14V67zm14 11v18h10c6 0 10-3 10-9s-4-9-10-9h-10z"/>
-    <path d="M352 67h15l13 24 13-24h15l-21 35v8h-14v-8l-21-35z"/>
-  </g>
+  <path d="M34 20V96H94" stroke="#ECFDFF" stroke-opacity="0.85" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

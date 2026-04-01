@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Orbitron, Rajdhani } from 'next/font/google';
+import { LetryLogo } from '@/components/brand/letry-logo';
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -26,7 +27,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <h1 className="cp-heading text-2xl text-[var(--cp-cyan)]">Letry</h1>
+          <div className="inline-flex items-center justify-center">
+            <LetryLogo className="h-16 w-16 drop-shadow-[0_0_20px_rgba(87,244,255,0.55)]" priority />
+          </div>
           <p className="mt-1 text-sm text-zinc-300">Letreiros digitais animados</p>
         </div>
         {children}

@@ -12,6 +12,13 @@ export const metadata: Metadata = {
   title: 'Meus letreiros — Letry',
 };
 
+export const logoutAction = async () => {
+  'use server';
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect('/login');
+};
+
 export default async function DashboardPage() {
   const supabase = await createClient();
   const {
@@ -47,6 +54,11 @@ export default async function DashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           {plan.tier === 'free' && <UpgradeButton label="Fazer upgrade para Pro" />}
+          <form action={logoutAction}>
+            <Button type="submit" variant="secondary">
+              Sair
+            </Button>
+          </form>
           <Link href="/create">
             <Button>Criar letreiro</Button>
           </Link>
