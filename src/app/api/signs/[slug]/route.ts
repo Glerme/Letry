@@ -1,16 +1,33 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { checkRateLimit } from '@/lib/security/rate-limit';
 
 export const GET = async (
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) => {
   const { slug } = await params;
+  const rateLimit = await checkRateLimit({
+    operation: 'api:signs:detail',
+    request,
+    keySuffix: slug,
+  });
+
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      { error: 'Muitas requisições. Tente novamente.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) },
+      }
+    );
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('signs')
-    .select('*')
+    .select('slug, text, animation, led_color, bg_color, speed, created_at')
     .eq('slug', slug)
     .single();
 

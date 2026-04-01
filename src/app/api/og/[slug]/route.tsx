@@ -1,13 +1,26 @@
 import { ImageResponse } from 'next/og';
 import { createServerClient } from '@supabase/ssr';
+import { checkRateLimit } from '@/lib/security/rate-limit';
 
 export const runtime = 'edge';
 
 export const GET = async (
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) => {
   const { slug } = await params;
+  const rateLimit = await checkRateLimit({
+    operation: 'api:og:detail',
+    request,
+    keySuffix: slug,
+  });
+
+  if (!rateLimit.success) {
+    return new Response('Too Many Requests', {
+      status: 429,
+      headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) },
+    });
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

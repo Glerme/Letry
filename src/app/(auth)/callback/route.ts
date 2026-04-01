@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { sanitizeRedirectPath } from '@/lib/security/redirect';
 
 export const GET = async (request: Request) => {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const rawNext = searchParams.get('next') ?? '/create';
-  // Only allow relative paths to prevent open redirects
-  const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/create';
+  const next = sanitizeRedirectPath(searchParams.get('next'), '/create');
 
   if (code) {
     const supabase = await createClient();

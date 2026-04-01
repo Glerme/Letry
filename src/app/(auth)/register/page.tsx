@@ -1,29 +1,49 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
+import {
+  AUTH_ERROR_FLAG,
+  hasAuthError,
+  REGISTER_ERROR_MESSAGE,
+} from '@/lib/auth/errors';
+import { checkRateLimit } from '@/lib/security/rate-limit';
+import { authSchema } from '@/lib/validations/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 const registerAction = async (formData: FormData) => {
   'use server';
-  const email = formData.get('email');
-  const password = formData.get('password');
+  const parsed = authSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  });
 
-  if (!email || !password) {
-    redirect('/register?error=Preencha%20todos%20os%20campos');
+  if (!parsed.success) {
+    redirect(`/register?error=${AUTH_ERROR_FLAG}`);
+  }
+
+  const requestHeaders = await headers();
+  const rateLimit = await checkRateLimit({
+    operation: 'auth:register',
+    headersList: requestHeaders,
+  });
+
+  if (!rateLimit.success) {
+    redirect(`/register?error=${AUTH_ERROR_FLAG}`);
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
-    email: email as string,
-    password: password as string,
+    email: parsed.data.email,
+    password: parsed.data.password,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/auth/callback`,
     },
   });
 
   if (error) {
-    redirect(`/register?error=${encodeURIComponent(error.message)}`);
+    redirect(`/register?error=${AUTH_ERROR_FLAG}`);
   }
 
   redirect('/register?success=1');
@@ -35,6 +55,7 @@ interface RegisterPageProps {
 
 export default async function RegisterPage({ searchParams }: RegisterPageProps) {
   const { error, success } = await searchParams;
+  const shouldShowError = hasAuthError(error);
 
   if (success) {
     return (
@@ -71,8 +92,8 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
           minLength={6}
           autoComplete="new-password"
         />
-        {error && (
-          <p className="text-sm text-red-400">{decodeURIComponent(error)}</p>
+        {shouldShowError && (
+          <p className="text-sm text-red-400">{REGISTER_ERROR_MESSAGE}</p>
         )}
         <Button type="submit" className="w-full mt-2">
           Criar conta

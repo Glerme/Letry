@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { SignCard } from '@/components/sign/sign-card';
 import { Button } from '@/components/ui/button';
-import type { Sign } from '@/lib/validations/sign';
+import type { OwnedSign } from '@/lib/validations/sign';
 
 export const metadata: Metadata = {
   title: 'Meus letreiros — Letry',
@@ -20,11 +20,11 @@ export default async function DashboardPage() {
 
   const { data: signs } = await supabase
     .from('signs')
-    .select('*')
+    .select('id, slug, text, animation, led_color, bg_color, speed, created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
-  const signList = (signs ?? []) as Sign[];
+  const signList = (signs ?? []) as OwnedSign[];
 
   return (
     <div className="flex flex-col gap-6">

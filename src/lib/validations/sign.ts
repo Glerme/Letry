@@ -9,11 +9,19 @@ export const signSchema = z.object({
   speed: z.enum(SPEEDS),
 });
 
+export const signIdSchema = z.string().uuid('ID inválido');
+
 export type SignInput = z.infer<typeof signSchema>;
 
-export type Sign = SignInput & {
-  id: string;
+export type PublicSign = SignInput & {
   slug: string;
-  user_id: string | null;
   created_at: string;
+};
+
+export type OwnedSign = PublicSign & {
+  id: string;
+};
+
+export type SignRecord = OwnedSign & {
+  user_id: string | null;
 };

@@ -4,10 +4,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { deleteSign } from '@/app/(app)/dashboard/actions';
-import type { Sign } from '@/lib/validations/sign';
+import type { OwnedSign } from '@/lib/validations/sign';
 
 interface SignCardProps {
-  sign: Sign;
+  sign: OwnedSign;
 }
 
 export const SignCard = ({ sign }: SignCardProps) => {

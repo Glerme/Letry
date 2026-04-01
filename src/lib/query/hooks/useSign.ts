@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query/keys';
-import type { Sign } from '@/lib/query/types';
+import type { PublicSign } from '@/lib/query/types';
 
-const fetchSign = async (slug: string): Promise<Sign> => {
+const fetchSign = async (slug: string): Promise<PublicSign> => {
   const response = await fetch(`/api/signs/${slug}`);
   if (!response.ok) {
     throw new Error('Sign not found');
   }
-  return response.json() as Promise<Sign>;
+  return response.json() as Promise<PublicSign>;
 };
 
 export const useSign = (slug: string) =>

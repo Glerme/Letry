@@ -1,6 +1,8 @@
 'use server';
 
+import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
+import { checkRateLimit } from '@/lib/security/rate-limit';
 import { signSchema } from '@/lib/validations/sign';
 import { generateSlug } from '@/lib/utils/slug';
 
@@ -25,6 +27,17 @@ export const createSign = async (data: unknown): Promise<CreateSignResult> => {
     console.error('Auth error in createSign:', authError.message);
     // Continue as anonymous — auth failure doesn't prevent sign creation
     // (anonymous signs are a supported use case)
+  }
+
+  const requestHeaders = await headers();
+  const rateLimit = await checkRateLimit({
+    operation: 'signs:create',
+    headersList: requestHeaders,
+    userId: user?.id,
+  });
+
+  if (!rateLimit.success) {
+    return { success: false, error: 'Muitas tentativas. Tente novamente.' };
   }
 
   const slug = generateSlug();

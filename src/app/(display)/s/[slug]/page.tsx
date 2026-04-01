@@ -6,6 +6,7 @@ import { LEDDisplay } from '@/components/led/led-display';
 import { Watermark } from '@/components/sign/watermark';
 import { FullscreenButton } from '@/components/sign/fullscreen-button';
 import type { AnimationType, SpeedType } from '@/lib/utils/constants';
+import type { PublicSign } from '@/lib/validations/sign';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -15,10 +16,10 @@ const getSign = cache(async (slug: string) => {
   const supabase = await createClient();
   const { data } = await supabase
     .from('signs')
-    .select('*')
+    .select('slug, text, animation, led_color, bg_color, speed, created_at')
     .eq('slug', slug)
     .single();
-  return data;
+  return data as PublicSign | null;
 });
 
 export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {

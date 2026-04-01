@@ -1,26 +1,46 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
+import {
+  AUTH_ERROR_FLAG,
+  hasAuthError,
+  LOGIN_ERROR_MESSAGE,
+} from '@/lib/auth/errors';
+import { checkRateLimit } from '@/lib/security/rate-limit';
+import { authSchema } from '@/lib/validations/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 const loginAction = async (formData: FormData) => {
   'use server';
-  const email = formData.get('email');
-  const password = formData.get('password');
+  const parsed = authSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  });
 
-  if (!email || !password) {
-    redirect('/login?error=Preencha%20todos%20os%20campos');
+  if (!parsed.success) {
+    redirect(`/login?error=${AUTH_ERROR_FLAG}`);
+  }
+
+  const requestHeaders = await headers();
+  const rateLimit = await checkRateLimit({
+    operation: 'auth:login',
+    headersList: requestHeaders,
+  });
+
+  if (!rateLimit.success) {
+    redirect(`/login?error=${AUTH_ERROR_FLAG}`);
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
-    email: email as string,
-    password: password as string,
+    email: parsed.data.email,
+    password: parsed.data.password,
   });
 
   if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    redirect(`/login?error=${AUTH_ERROR_FLAG}`);
   }
 
   redirect('/create');
@@ -32,6 +52,7 @@ interface LoginPageProps {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { error } = await searchParams;
+  const shouldShowError = hasAuthError(error);
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
@@ -53,8 +74,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           required
           autoComplete="current-password"
         />
-        {error && (
-          <p className="text-sm text-red-400">{decodeURIComponent(error)}</p>
+        {shouldShowError && (
+          <p className="text-sm text-red-400">{LOGIN_ERROR_MESSAGE}</p>
         )}
         <Button type="submit" className="w-full mt-2">
           Entrar
