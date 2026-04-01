@@ -140,7 +140,10 @@ export const POST = async (request: Request) => {
       return NextResponse.json({ error: 'Erro ao sincronizar assinatura' }, { status: 500 });
     }
 
-    try { revalidatePath('/dashboard'); } catch { /* no-op outside Next.js runtime */ }
+    try {
+      revalidatePath('/dashboard');
+      revalidatePath('/create');
+    } catch { /* no-op outside Next.js runtime */ }
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('Error processing Abacate Pay webhook:', error);
