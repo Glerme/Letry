@@ -4,12 +4,24 @@ import { createClient } from '@/lib/supabase/server';
 import { BILLING_PLANS, type BillingPlanCode } from '@/lib/billing/types';
 import { createCheckout } from '@/lib/billing/abacate-pay';
 import { getBillingProduct } from '@/lib/billing/plans';
+import {
+  isValidBrazilCellphone,
+  isValidTaxId,
+  normalizeCellphone,
+  normalizeTaxId,
+} from '@/lib/validations/billing-customer';
 
 const customerSchema = z.object({
   name: z.string().min(3, 'Nome inválido'),
   email: z.string().email('E-mail inválido'),
-  cellphone: z.string().min(8, 'Celular inválido'),
-  taxId: z.string().min(11, 'CPF/CNPJ inválido'),
+  cellphone: z
+    .string()
+    .refine(isValidBrazilCellphone, 'Celular inválido')
+    .transform(normalizeCellphone),
+  taxId: z
+    .string()
+    .refine(isValidTaxId, 'CPF/CNPJ inválido')
+    .transform(normalizeTaxId),
 });
 
 const checkoutSchema = z.object({

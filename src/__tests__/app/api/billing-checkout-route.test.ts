@@ -79,7 +79,7 @@ describe('POST /api/billing/checkout', () => {
             name: 'Fulano de Tal',
             email: 'fulano@example.com',
             cellphone: '(11) 99999-0000',
-            taxId: '123.456.789-00',
+            taxId: '529.982.247-25',
           },
         }),
       })
@@ -93,10 +93,62 @@ describe('POST /api/billing/checkout', () => {
       {
         name: 'Fulano de Tal',
         email: 'fulano@example.com',
-        cellphone: '(11) 99999-0000',
-        taxId: '123.456.789-00',
+        cellphone: '11999990000',
+        taxId: '52998224725',
       }
     );
     expect(upsert).toHaveBeenCalledOnce();
+  });
+
+  it('returns 400 for invalid cellphone', async () => {
+    vi.mocked(createClient).mockResolvedValue({
+      auth: {
+        getUser: vi.fn(async () => ({ data: { user: { id: 'user-1' } } })),
+      },
+    } as never);
+
+    const response = await POST(
+      new Request('http://localhost/api/billing/checkout', {
+        method: 'POST',
+        body: JSON.stringify({
+          plan: 'pro_annual_pix',
+          returnTo: '/dashboard?billing=success',
+          customer: {
+            name: 'Fulano de Tal',
+            email: 'fulano@example.com',
+            cellphone: '123',
+            taxId: '529.982.247-25',
+          },
+        }),
+      })
+    );
+
+    expect(response.status).toBe(400);
+  });
+
+  it('returns 400 for invalid cpf/cnpj', async () => {
+    vi.mocked(createClient).mockResolvedValue({
+      auth: {
+        getUser: vi.fn(async () => ({ data: { user: { id: 'user-1' } } })),
+      },
+    } as never);
+
+    const response = await POST(
+      new Request('http://localhost/api/billing/checkout', {
+        method: 'POST',
+        body: JSON.stringify({
+          plan: 'pro_annual_pix',
+          returnTo: '/dashboard?billing=success',
+          customer: {
+            name: 'Fulano de Tal',
+            email: 'fulano@example.com',
+            cellphone: '(11) 99999-0000',
+            taxId: '000.000.000-00',
+          },
+        }),
+      })
+    );
+
+    expect(response.status).toBe(400);
   });
 });

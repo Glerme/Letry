@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import type { BillingPlanCode } from '@/lib/billing/types';
+import { isValidBrazilCellphone, isValidTaxId } from '@/lib/validations/billing-customer';
 
 interface UpgradeButtonProps {
   className?: string;
@@ -29,8 +30,8 @@ export const UpgradeButton = ({
   const validateCustomerFields = (): string | null => {
     if (name.trim().length < 3) return 'Informe seu nome completo.';
     if (!email.includes('@')) return 'Informe um e-mail válido.';
-    if (cellphone.trim().length < 8) return 'Informe um celular válido.';
-    if (taxId.trim().length < 11) return 'Informe um CPF/CNPJ válido.';
+    if (!isValidBrazilCellphone(cellphone)) return 'Informe um celular válido com DDD.';
+    if (!isValidTaxId(taxId)) return 'Informe um CPF/CNPJ válido.';
     return null;
   };
 
