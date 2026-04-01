@@ -36,11 +36,11 @@ export const Dialog = ({ open, onClose, title, children }: DialogProps) => {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-xl border border-zinc-700 bg-zinc-900 p-6 shadow-xl"
+        className="cp-panel w-full max-w-md rounded-xl border border-[var(--cp-border)] p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
+          <h2 className="cp-heading text-lg">{title}</h2>
           <button
             onClick={onClose}
             className="text-zinc-400 hover:text-white transition-colors"

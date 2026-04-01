@@ -1,16 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { SpeedType } from '@/lib/utils/constants';
+import type { LoopModeType, SpeedType } from '@/lib/utils/constants';
+import { FLIP_SCRAMBLE_STEPS, FLIP_TIMINGS, getFlipCycleDurationMs } from './loop-utils';
 
 const CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,!?-';
-const SCRAMBLE_STEPS = 10;
-
-const FLIP_TIMINGS: Record<SpeedType, { half: number; stepGap: number; stagger: number }> = {
-  slow:   { half: 120, stepGap: 60, stagger: 130 },
-  normal: { half:  70, stepGap: 25, stagger:  75 },
-  fast:   { half:  40, stepGap: 10, stagger:  40 },
-};
 
 interface FlipTileProps {
   targetChar: string;
@@ -31,7 +25,7 @@ const FlipTile = ({ targetChar, ledColor, bgColor, charIndex, speed }: FlipTileP
 
     const timings = FLIP_TIMINGS[speed];
     const delay = charIndex * timings.stagger;
-    const totalSteps = SCRAMBLE_STEPS + Math.floor(Math.random() * 4);
+    const totalSteps = FLIP_SCRAMBLE_STEPS + Math.floor(Math.random() * 4);
     let step = 0;
     let cancelled = false;
 
@@ -135,10 +129,48 @@ interface FlipDisplayProps {
   ledColor: string;
   bgColor: string;
   speed: SpeedType;
+  loopMode: LoopModeType;
+  restartSeconds: number | null;
 }
 
-export const FlipDisplay = ({ text, ledColor, bgColor, speed }: FlipDisplayProps) => {
+export const FlipDisplay = ({
+  text,
+  ledColor,
+  bgColor,
+  speed,
+  loopMode,
+  restartSeconds,
+}: FlipDisplayProps) => {
   const chars = (text || ' ').toUpperCase().split('');
+  const [cycleKey, setCycleKey] = useState(0);
+  const restartRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (restartRef.current) {
+      clearInterval(restartRef.current);
+      restartRef.current = null;
+    }
+
+    if (loopMode === 'once') return;
+
+    if (loopMode === 'restart' && restartSeconds !== null) {
+      restartRef.current = setInterval(() => {
+        setCycleKey((prev) => prev + 1);
+      }, restartSeconds * 1000);
+      return () => {
+        if (restartRef.current) clearInterval(restartRef.current);
+      };
+    }
+
+    const durationMs = getFlipCycleDurationMs(text, speed);
+    restartRef.current = setInterval(() => {
+      setCycleKey((prev) => prev + 1);
+    }, durationMs);
+
+    return () => {
+      if (restartRef.current) clearInterval(restartRef.current);
+    };
+  }, [loopMode, restartSeconds, text, speed]);
 
   return (
     <div
@@ -148,7 +180,7 @@ export const FlipDisplay = ({ text, ledColor, bgColor, speed }: FlipDisplayProps
       <div style={{ display: 'flex', gap: 'clamp(2px, 0.3vw, 4px)', flexWrap: 'wrap', justifyContent: 'center' }}>
         {chars.map((char, i) => (
           <FlipTile
-            key={i}
+            key={`${cycleKey}-${i}`}
             targetChar={char}
             ledColor={ledColor}
             bgColor={bgColor}

@@ -9,8 +9,18 @@ CREATE TABLE public.signs (
   led_color   VARCHAR(7) NOT NULL DEFAULT '#ff6600',
   bg_color    VARCHAR(7) NOT NULL DEFAULT '#111111',
   speed       VARCHAR(10) NOT NULL DEFAULT 'normal',
+  loop_mode   VARCHAR(12) NOT NULL DEFAULT 'infinite',
+  restart_seconds SMALLINT NULL,
   user_id     UUID REFERENCES auth.users(id) ON DELETE SET NULL,
-  created_at  TIMESTAMPTZ DEFAULT now()
+  created_at  TIMESTAMPTZ DEFAULT now(),
+  CONSTRAINT signs_loop_mode_check CHECK (loop_mode IN ('infinite', 'restart', 'once')),
+  CONSTRAINT signs_restart_seconds_range_check CHECK (
+    restart_seconds IS NULL OR (restart_seconds BETWEEN 1 AND 120)
+  ),
+  CONSTRAINT signs_restart_seconds_mode_check CHECK (
+    (loop_mode = 'restart' AND restart_seconds IS NOT NULL)
+    OR (loop_mode <> 'restart' AND restart_seconds IS NULL)
+  )
 );
 
 CREATE UNIQUE INDEX idx_signs_slug ON signs(slug);

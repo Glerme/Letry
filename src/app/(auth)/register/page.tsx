@@ -59,12 +59,15 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 
   if (success) {
     return (
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 text-center">
-        <h2 className="text-lg font-semibold text-white mb-2">Verifique seu e-mail</h2>
-        <p className="text-zinc-400 text-sm">
+      <div className="cp-panel rounded-xl border border-[var(--cp-border)] p-6 text-center">
+        <h2 className="cp-heading mb-2 text-lg">Verifique seu e-mail</h2>
+        <p className="text-sm text-zinc-300">
           Enviamos um link de confirmação para o seu e-mail.
         </p>
-        <Link href="/login" className="mt-4 inline-block text-orange-400 hover:text-orange-300 text-sm">
+        <Link
+          href="/login"
+          className="mt-4 inline-block text-sm text-[var(--cp-cyan)] hover:text-[var(--cp-lime)]"
+        >
           Voltar ao login
         </Link>
       </div>
@@ -72,8 +75,8 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
   }
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <h2 className="text-lg font-semibold text-white mb-6">Criar conta</h2>
+    <div className="cp-panel rounded-xl border border-[var(--cp-border)] p-6">
+      <h2 className="cp-heading mb-6 text-lg">Criar conta</h2>
       <form action={registerAction} className="flex flex-col gap-4">
         <Input
           name="email"
@@ -99,9 +102,9 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
           Criar conta
         </Button>
       </form>
-      <p className="mt-4 text-center text-sm text-zinc-400">
+      <p className="mt-4 text-center text-sm text-zinc-300">
         Já tem conta?{' '}
-        <Link href="/login" className="text-orange-400 hover:text-orange-300">
+        <Link href="/login" className="text-[var(--cp-cyan)] hover:text-[var(--cp-lime)]">
           Entrar
         </Link>
       </p>

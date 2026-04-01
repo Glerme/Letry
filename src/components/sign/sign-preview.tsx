@@ -1,7 +1,7 @@
 'use client';
 
 import { LEDDisplay } from '@/components/led/led-display';
-import type { AnimationType, SpeedType } from '@/lib/utils/constants';
+import type { AnimationType, LoopModeType, SpeedType } from '@/lib/utils/constants';
 
 interface SignPreviewProps {
   text: string;
@@ -9,9 +9,19 @@ interface SignPreviewProps {
   ledColor: string;
   bgColor: string;
   speed: SpeedType;
+  loopMode: LoopModeType;
+  restartSeconds: number | null;
 }
 
-export const SignPreview = ({ text, animation, ledColor, bgColor, speed }: SignPreviewProps) => (
+export const SignPreview = ({
+  text,
+  animation,
+  ledColor,
+  bgColor,
+  speed,
+  loopMode,
+  restartSeconds,
+}: SignPreviewProps) => (
   <div className="rounded-xl overflow-hidden border border-zinc-700">
     <LEDDisplay
       text={text}
@@ -19,6 +29,8 @@ export const SignPreview = ({ text, animation, ledColor, bgColor, speed }: SignP
       ledColor={ledColor}
       bgColor={bgColor}
       speed={speed}
+      loopMode={loopMode}
+      restartSeconds={restartSeconds}
     />
   </div>
 );

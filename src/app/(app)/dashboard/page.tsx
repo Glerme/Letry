@@ -20,7 +20,7 @@ export default async function DashboardPage() {
 
   const { data: signs } = await supabase
     .from('signs')
-    .select('id, slug, text, animation, led_color, bg_color, speed, created_at')
+    .select('id, slug, text, animation, led_color, bg_color, speed, loop_mode, restart_seconds, created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
@@ -30,8 +30,8 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Meus letreiros</h1>
-          <p className="text-zinc-400 text-sm mt-1">
+          <h1 className="cp-heading text-2xl">Meus letreiros</h1>
+          <p className="mt-1 text-sm text-zinc-300">
             {signList.length === 0
               ? 'Nenhum letreiro ainda.'
               : `${signList.length} letreiro${signList.length !== 1 ? 's' : ''}`}
@@ -43,8 +43,8 @@ export default async function DashboardPage() {
       </div>
 
       {signList.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-700 p-12 text-center">
-          <p className="text-zinc-500 mb-4">Crie seu primeiro letreiro!</p>
+        <div className="cp-panel rounded-xl border border-dashed border-[var(--cp-border)] p-12 text-center">
+          <p className="mb-4 text-zinc-300">Crie seu primeiro letreiro!</p>
           <Link href="/create">
             <Button variant="secondary">Criar agora</Button>
           </Link>

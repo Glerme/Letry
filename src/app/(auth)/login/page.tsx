@@ -55,8 +55,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const shouldShowError = hasAuthError(error);
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6">
-      <h2 className="text-lg font-semibold text-white mb-6">Entrar</h2>
+    <div className="cp-panel rounded-xl border border-[var(--cp-border)] p-6">
+      <h2 className="cp-heading mb-6 text-lg">Entrar</h2>
       <form action={loginAction} className="flex flex-col gap-4">
         <Input
           name="email"
@@ -81,9 +81,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           Entrar
         </Button>
       </form>
-      <p className="mt-4 text-center text-sm text-zinc-400">
+      <p className="mt-4 text-center text-sm text-zinc-300">
         Não tem conta?{' '}
-        <Link href="/register" className="text-orange-400 hover:text-orange-300">
+        <Link href="/register" className="text-[var(--cp-cyan)] hover:text-[var(--cp-lime)]">
           Criar conta
         </Link>
       </p>

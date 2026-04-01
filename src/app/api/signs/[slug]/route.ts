@@ -27,7 +27,7 @@ export const GET = async (
 
   const { data, error } = await supabase
     .from('signs')
-    .select('slug, text, animation, led_color, bg_color, speed, created_at')
+    .select('slug, text, animation, led_color, bg_color, speed, loop_mode, restart_seconds, created_at')
     .eq('slug', slug)
     .single();
 

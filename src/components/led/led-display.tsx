@@ -7,7 +7,8 @@ import { FlipDisplay } from './flip-display';
 import { getCharBitmap, CHAR_WIDTH, CHAR_HEIGHT } from './font-bitmap';
 import { animations } from './animations';
 import type { AnimationConfig, AnimationState } from './animations/types';
-import type { AnimationType, SpeedType } from '@/lib/utils/constants';
+import { buildStaticGrid, shouldFreezeOnTick } from './loop-utils';
+import type { AnimationType, LoopModeType, SpeedType } from '@/lib/utils/constants';
 import { SPEED_MS } from '@/lib/utils/constants';
 
 interface LEDDisplayProps {
@@ -16,6 +17,8 @@ interface LEDDisplayProps {
   ledColor: string;
   bgColor: string;
   speed: SpeedType;
+  loopMode: LoopModeType;
+  restartSeconds: number | null;
 }
 
 const textToBitmap = (text: string): boolean[][] => {
@@ -58,6 +61,8 @@ export const LEDDisplay = ({
   ledColor,
   bgColor,
   speed,
+  loopMode,
+  restartSeconds,
 }: LEDDisplayProps) => {
   const isFlip = animationType === 'flip';
 
@@ -69,34 +74,96 @@ export const LEDDisplay = ({
   });
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const restartRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const animStateRef = useRef<AnimationState | null>(null);
+  const tickCountRef = useRef(0);
 
   useEffect(() => {
     if (isFlip) return;
     if (intervalRef.current) clearInterval(intervalRef.current);
+    if (restartRef.current) clearInterval(restartRef.current);
 
     const anim = animations[animationType];
     const config = buildConfig(text, animationType, speed);
-    animStateRef.current = anim.init(config);
-    setGrid(animStateRef.current.grid.map((row) => [...row]));
 
-    intervalRef.current = setInterval(() => {
-      if (!animStateRef.current) return;
-      animStateRef.current = anim.tick(animStateRef.current, config);
-      setGrid(animStateRef.current.grid.map((row) => [...row]));
-
-      if (!animStateRef.current.running) {
-        if (intervalRef.current) clearInterval(intervalRef.current);
+    const clearTick = () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
-    }, config.speedMs);
+    };
+
+    const resetAnimation = () => {
+      animStateRef.current = anim.init(config);
+      tickCountRef.current = 0;
+      setGrid(animStateRef.current.grid.map((row) => [...row]));
+    };
+
+    const startTick = () => {
+      clearTick();
+      intervalRef.current = setInterval(() => {
+        if (!animStateRef.current) return;
+        tickCountRef.current += 1;
+        const nextState = anim.tick(animStateRef.current, config);
+        animStateRef.current = nextState;
+        setGrid(nextState.grid.map((row) => [...row]));
+
+        const textCols = config.textBitmap[0]?.length ?? 0;
+        if (
+          loopMode === 'once' &&
+          shouldFreezeOnTick(animationType, tickCountRef.current, textCols, config.visibleCols)
+        ) {
+          setGrid(buildStaticGrid(config.textBitmap, config.visibleCols));
+          clearTick();
+          return;
+        }
+
+        if (!nextState.running) {
+          if (loopMode === 'once') {
+            clearTick();
+            return;
+          }
+
+          if (loopMode === 'infinite') {
+            resetAnimation();
+            return;
+          }
+
+          clearTick();
+        }
+      }, config.speedMs);
+    };
+
+    resetAnimation();
+    startTick();
+
+    if (loopMode === 'restart' && restartSeconds !== null) {
+      restartRef.current = setInterval(() => {
+        resetAnimation();
+        startTick();
+      }, restartSeconds * 1000);
+    }
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      clearTick();
+      if (restartRef.current) {
+        clearInterval(restartRef.current);
+        restartRef.current = null;
+      }
     };
-  }, [text, animationType, speed, isFlip]);
+  }, [text, animationType, speed, isFlip, loopMode, restartSeconds]);
 
   if (isFlip) {
-    return <FlipDisplay text={text} ledColor={ledColor} bgColor={bgColor} speed={speed} />;
+    return (
+      <FlipDisplay
+        text={text}
+        ledColor={ledColor}
+        bgColor={bgColor}
+        speed={speed}
+        loopMode={loopMode}
+        restartSeconds={restartSeconds}
+      />
+    );
   }
 
   return (

@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { LEDDisplay } from '@/components/led/led-display';
 import { Watermark } from '@/components/sign/watermark';
 import { FullscreenButton } from '@/components/sign/fullscreen-button';
-import type { AnimationType, SpeedType } from '@/lib/utils/constants';
+import type { AnimationType, LoopModeType, SpeedType } from '@/lib/utils/constants';
 import type { PublicSign } from '@/lib/validations/sign';
 
 interface PageProps {
@@ -16,7 +16,7 @@ const getSign = cache(async (slug: string) => {
   const supabase = await createClient();
   const { data } = await supabase
     .from('signs')
-    .select('slug, text, animation, led_color, bg_color, speed, created_at')
+    .select('slug, text, animation, led_color, bg_color, speed, loop_mode, restart_seconds, created_at')
     .eq('slug', slug)
     .single();
   return data as PublicSign | null;
@@ -64,6 +64,8 @@ export default async function DisplayPage({ params }: PageProps) {
         ledColor={sign.led_color}
         bgColor={sign.bg_color}
         speed={sign.speed as SpeedType}
+        loopMode={sign.loop_mode as LoopModeType}
+        restartSeconds={sign.restart_seconds}
       />
       <FullscreenButton />
       <Watermark />

@@ -27,7 +27,7 @@ export const SignCard = ({ sign }: SignCardProps) => {
   };
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4 flex flex-col gap-3">
+    <div className="cp-panel flex flex-col gap-3 rounded-xl border border-[var(--cp-border)] p-4">
       <div className="flex items-start justify-between gap-2">
         <div
           className="flex-1 rounded-lg p-3 font-mono text-sm font-bold tracking-widest truncate"
@@ -40,7 +40,7 @@ export const SignCard = ({ sign }: SignCardProps) => {
           {sign.text}
         </div>
       </div>
-      <div className="flex items-center justify-between gap-2 text-xs text-zinc-500">
+      <div className="flex items-center justify-between gap-2 text-xs text-zinc-300">
         <span>{sign.animation} · {sign.speed}</span>
         <span>{new Date(sign.created_at).toLocaleDateString('pt-BR')}</span>
       </div>
@@ -52,7 +52,7 @@ export const SignCard = ({ sign }: SignCardProps) => {
           href={`/s/${sign.slug}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 rounded-md border border-zinc-700 px-3 py-1.5 text-center text-xs text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
+          className="flex-1 rounded-md border border-[var(--cp-border)] px-3 py-1.5 text-center text-xs text-zinc-200 transition-colors hover:border-[rgba(70,246,255,0.75)] hover:text-white"
         >
           Abrir
         </Link>

@@ -49,6 +49,8 @@ export const createSign = async (data: unknown): Promise<CreateSignResult> => {
     led_color: parsed.data.led_color,
     bg_color: parsed.data.bg_color,
     speed: parsed.data.speed,
+    loop_mode: parsed.data.loop_mode,
+    restart_seconds: parsed.data.restart_seconds,
     user_id: user?.id ?? null,
   });
 
@@ -63,6 +65,8 @@ export const createSign = async (data: unknown): Promise<CreateSignResult> => {
         led_color: parsed.data.led_color,
         bg_color: parsed.data.bg_color,
         speed: parsed.data.speed,
+        loop_mode: parsed.data.loop_mode,
+        restart_seconds: parsed.data.restart_seconds,
         user_id: user?.id ?? null,
       });
       if (retryError) {

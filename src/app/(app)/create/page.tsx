@@ -9,8 +9,8 @@ export default function CreatePage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Criar letreiro</h1>
-        <p className="text-zinc-400 text-sm mt-1">
+        <h1 className="cp-heading text-2xl">Criar letreiro</h1>
+        <p className="mt-1 text-sm text-zinc-300">
           Personalize seu letreiro e compartilhe com um link único.
         </p>
       </div>

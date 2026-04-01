@@ -29,10 +29,10 @@ export const ShareDialog = ({ slug, onClose }: ShareDialogProps) => {
       title="Seu letreiro está pronto!"
     >
       <div className="flex flex-col gap-4">
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-zinc-300">
           Compartilhe este link para exibir seu letreiro:
         </p>
-        <div className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2">
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--cp-border)] bg-[rgba(10,14,30,0.65)] px-3 py-2">
           <span className="flex-1 truncate text-sm text-zinc-200 font-mono">
             {shareUrl}
           </span>

@@ -1,6 +1,5 @@
 import type { Animation, AnimationConfig, AnimationState } from './types';
-
-const FADE_IN_TICKS = 8;
+import { FADE_IN_TICKS } from '../loop-utils';
 
 export const fadeAnimation: Animation = {
   name: 'fade',

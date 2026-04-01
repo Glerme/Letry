@@ -29,7 +29,7 @@ export const GET = async (request: Request) => {
 
   const { data, error } = await supabase
     .from('signs')
-    .select('id, slug, text, animation, led_color, bg_color, speed, created_at')
+    .select('id, slug, text, animation, led_color, bg_color, speed, loop_mode, restart_seconds, created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 

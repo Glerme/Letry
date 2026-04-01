@@ -9,6 +9,8 @@ describe('signSchema', () => {
     led_color: '#ff6600',
     bg_color: '#111111',
     speed: 'normal',
+    loop_mode: 'infinite',
+    restart_seconds: null,
   };
 
   it('accepts valid input', () => {
@@ -53,6 +55,57 @@ describe('signSchema', () => {
       const result = signSchema.safeParse({ ...validInput, speed });
       expect(result.success).toBe(true);
     }
+  });
+
+  it('accepts restart mode with restart seconds', () => {
+    const result = signSchema.safeParse({
+      ...validInput,
+      loop_mode: 'restart',
+      restart_seconds: 10,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts once mode with null restart seconds', () => {
+    const result = signSchema.safeParse({
+      ...validInput,
+      loop_mode: 'once',
+      restart_seconds: null,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects restart mode without restart seconds', () => {
+    const result = signSchema.safeParse({
+      ...validInput,
+      loop_mode: 'restart',
+      restart_seconds: null,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects restart seconds outside 1..120', () => {
+    const tooLow = signSchema.safeParse({
+      ...validInput,
+      loop_mode: 'restart',
+      restart_seconds: 0,
+    });
+    const tooHigh = signSchema.safeParse({
+      ...validInput,
+      loop_mode: 'restart',
+      restart_seconds: 121,
+    });
+    expect(tooLow.success).toBe(false);
+    expect(tooHigh.success).toBe(false);
+  });
+
+  it('rejects restart seconds when mode is not restart', () => {
+    const result = signSchema.safeParse({
+      ...validInput,
+      loop_mode: 'infinite',
+      restart_seconds: 12,
+    });
+    expect(result.success).toBe(false);
   });
 
   it('accepts valid UUID id', () => {

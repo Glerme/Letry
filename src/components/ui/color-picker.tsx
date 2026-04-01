@@ -12,7 +12,7 @@ export const ColorPicker = forwardRef<HTMLInputElement, ColorPickerProps>(
   ({ label, error, className = '', id, ...props }, ref) => (
     <div className="flex flex-col gap-1">
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-zinc-300">
+        <label htmlFor={id} className="text-sm font-medium text-zinc-200">
           {label}
         </label>
       )}
@@ -21,7 +21,7 @@ export const ColorPicker = forwardRef<HTMLInputElement, ColorPickerProps>(
           type="color"
           id={id}
           ref={ref}
-          className={`h-9 w-12 cursor-pointer rounded border border-zinc-700 bg-zinc-900 p-0.5 focus:outline-none focus:ring-2 focus:ring-orange-500 ${className}`}
+          className={`h-9 w-12 cursor-pointer rounded border border-[var(--cp-border)] bg-[rgba(10,14,30,0.65)] p-0.5 focus:outline-none focus:ring-2 focus:ring-[var(--cp-cyan)] ${className}`}
           {...props}
         />
         <span className="text-sm text-zinc-400">{String(props.value ?? '')}</span>
