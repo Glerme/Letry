@@ -14,6 +14,8 @@ const getApiKey = (): string => {
 const getAppUrl = (): string =>
   process.env.ABACATEPAY_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
+const getDefaultCustomerId = (): string | null => process.env.ABACATEPAY_CUSTOMER_ID ?? null;
+
 const abacatePayRequest = async <TBody extends object, TResponse>(
   path: string,
   body: TBody
@@ -66,29 +68,45 @@ export const createCheckout = async (
   const successUrl = `${appUrl}${returnTo}`;
   const externalId = `${userId}:${product.code}:${Date.now()}`;
   const methods = product.paymentMethod === 'pix' ? ['PIX'] : ['CARD'];
+  const customerId = getDefaultCustomerId();
+  const payload: {
+    frequency: 'ONE_TIME';
+    methods: string[];
+    products: Array<{
+      externalId: string;
+      name: string;
+      description: string;
+      quantity: number;
+      price: number;
+    }>;
+    externalId: string;
+    returnUrl: string;
+    completionUrl: string;
+    customerId?: string;
+  } = {
+    frequency: 'ONE_TIME',
+    methods,
+    products: [
+      {
+        externalId: product.code,
+        name: product.title,
+        description: product.title,
+        quantity: 1,
+        price: Math.round(product.amount * 100),
+      },
+    ],
+    externalId,
+    returnUrl: successUrl,
+    completionUrl: successUrl,
+  };
+  if (customerId) {
+    payload.customerId = customerId;
+  }
 
   const rawResponse = await abacatePayRequest<
     object,
     AbacateApiResponse<CreateBillingResponse>
-  >(
-    '/v1/billing/create',
-    {
-      frequency: 'ONE_TIME',
-      methods,
-      products: [
-        {
-          externalId: product.code,
-          name: product.title,
-          description: product.title,
-          quantity: 1,
-          price: Math.round(product.amount * 100),
-        },
-      ],
-      externalId,
-      returnUrl: successUrl,
-      completionUrl: successUrl,
-    }
-  );
+  >('/v1/billing/create', payload);
 
   const response = unwrapResponse(rawResponse);
   const checkoutUrl = response.url;
