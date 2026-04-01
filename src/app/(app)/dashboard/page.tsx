@@ -42,7 +42,11 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-end">
         <form action={logoutAction}>
-          <Button type="submit" variant="ghost">
+          <Button
+            type="submit"
+            variant="ghost"
+            className="text-red-400 hover:bg-red-500/10 hover:text-red-300"
+          >
             Sair
           </Button>
         </form>

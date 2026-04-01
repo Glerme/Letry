@@ -11,6 +11,8 @@ import { checkRateLimit } from '@/lib/security/rate-limit';
 import { authSchema } from '@/lib/validations/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
+import { GoogleIcon } from '@/components/icons/google-icon';
 
 const loginAction = async (formData: FormData) => {
   'use server';
@@ -107,9 +109,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           required
           autoComplete="email"
         />
-        <Input
+        <PasswordInput
           name="password"
-          type="password"
+          id="login-password"
           label="Senha"
           placeholder="••••••••"
           required
@@ -127,7 +129,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       </div>
       <form action={loginWithGoogleAction}>
         <Button type="submit" variant="secondary" className="w-full">
-          Continuar com Google
+          <GoogleIcon />
+          <span className="ml-2">Continuar com Google</span>
         </Button>
       </form>
       <p className="mt-4 text-center text-sm text-zinc-300">

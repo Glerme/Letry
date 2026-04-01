@@ -11,6 +11,8 @@ import { checkRateLimit } from '@/lib/security/rate-limit';
 import { authSchema } from '@/lib/validations/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
+import { GoogleIcon } from '@/components/icons/google-icon';
 
 const registerAction = async (formData: FormData) => {
   'use server';
@@ -118,9 +120,9 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
           required
           autoComplete="email"
         />
-        <Input
+        <PasswordInput
           name="password"
-          type="password"
+          id="register-password"
           label="Senha"
           placeholder="Mínimo 6 caracteres"
           required
@@ -139,7 +141,8 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
       </div>
       <form action={registerWithGoogleAction}>
         <Button type="submit" variant="secondary" className="w-full">
-          Continuar com Google
+          <GoogleIcon />
+          <span className="ml-2">Continuar com Google</span>
         </Button>
       </form>
       <p className="mt-4 text-center text-sm text-zinc-300">
