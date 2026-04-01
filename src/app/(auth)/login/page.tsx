@@ -50,7 +50,7 @@ export const loginWithGoogleAction = async () => {
   'use server';
   const requestHeaders = await headers();
   const rateLimit = await checkRateLimit({
-    operation: 'auth:login:google',
+    operation: 'auth:login',
     headersList: requestHeaders,
   });
 

@@ -53,7 +53,7 @@ export const registerWithGoogleAction = async () => {
   'use server';
   const requestHeaders = await headers();
   const rateLimit = await checkRateLimit({
-    operation: 'auth:register:google',
+    operation: 'auth:register',
     headersList: requestHeaders,
   });
 
