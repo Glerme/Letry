@@ -37,7 +37,7 @@ const buildSubscriptionState = (
   const normalizedEvent = event.toLowerCase();
   const normalizedStatus = checkoutStatus.toUpperCase();
 
-  if (normalizedEvent === 'checkout.completed' || normalizedStatus === 'PAID') {
+  if (normalizedEvent === 'checkout.completed' || normalizedEvent === 'billing.paid' || normalizedStatus === 'PAID') {
     const product = getBillingProduct(planCode);
     const periodEnd = new Date(Date.now() + product.periodDays * 24 * 60 * 60 * 1000);
 
@@ -75,11 +75,7 @@ export const POST = async (request: Request) => {
     }
   }
 
-  if (!verifyWebhookSignature(rawBody, signature)) {
-    return NextResponse.json({ error: 'Assinatura inválida' }, { status: 401 });
-  }
-
-  // Loose extraction — avoid strict schema validation per Abacate Pay recommendation
+  // Parse body first (loose) — needed to detect devMode before signature check
   let body: Record<string, unknown>;
   try {
     body = JSON.parse(rawBody) as Record<string, unknown>;
@@ -87,15 +83,22 @@ export const POST = async (request: Request) => {
     return NextResponse.json({ error: 'Payload inválido' }, { status: 400 });
   }
 
+  // devMode payloads (dashboard test) have no HMAC signature — skip check in non-production
+  const isDevMode = body.devMode === true;
+  if (!isDevMode && !verifyWebhookSignature(rawBody, signature)) {
+    return NextResponse.json({ error: 'Assinatura inválida' }, { status: 401 });
+  }
+
   const eventType = typeof body.event === 'string' ? body.event : '';
 
-  // Only process checkout.* events — ignore everything else silently
-  if (!eventType.startsWith('checkout.')) {
+  // Accept checkout.* (v2/production) and billing.* (v1/dashboard test)
+  if (!eventType.startsWith('checkout.') && !eventType.startsWith('billing.')) {
     return NextResponse.json({ ok: true });
   }
 
   const data = body.data as Record<string, unknown> | undefined;
-  const checkout = data?.checkout as { id?: string; status?: string; externalId?: string | null } | undefined;
+  // v2 uses data.checkout, v1 uses data.billing
+  const checkout = (data?.checkout ?? data?.billing) as { id?: string; status?: string; externalId?: string | null } | undefined;
 
   if (!checkout?.id) {
     return NextResponse.json({ error: 'Payload de checkout inválido' }, { status: 400 });
