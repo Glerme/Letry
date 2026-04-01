@@ -1,23 +1,12 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
 import { getBillingProduct } from '@/lib/billing/plans';
 import { verifyWebhookSignature } from '@/lib/billing/abacate-pay';
 import type { BillingPlanCode, PlanTier, SubscriptionStatus } from '@/lib/billing/types';
 
-const webhookSchema = z.object({
-  event: z.string().optional(),
-  data: z.object({
-    checkout: z
-      .object({
-        id: z.string(),
-        status: z.string().optional(),
-        externalId: z.string().nullable().optional(),
-      })
-      .optional(),
-  }).optional(),
-});
+// NOTE: Abacate Pay recommends NOT validating the full webhook payload with Zod,
+// as future field additions would break the endpoint. Use loose extraction instead.
 
 const parseReference = (
   externalReference: string | null,
@@ -90,26 +79,25 @@ export const POST = async (request: Request) => {
     return NextResponse.json({ error: 'Assinatura inválida' }, { status: 401 });
   }
 
-  const jsonBody = (() => {
-    try {
-      return JSON.parse(rawBody);
-    } catch {
-      return null;
-    }
-  })();
-
-  const parsedBody = webhookSchema.safeParse(jsonBody);
-  if (!parsedBody.success) {
+  // Loose extraction — avoid strict schema validation per Abacate Pay recommendation
+  let body: Record<string, unknown>;
+  try {
+    body = JSON.parse(rawBody) as Record<string, unknown>;
+  } catch {
     return NextResponse.json({ error: 'Payload inválido' }, { status: 400 });
   }
 
-  const eventType = parsedBody.data.event ?? '';
-  const checkout = parsedBody.data.data?.checkout;
+  const eventType = typeof body.event === 'string' ? body.event : '';
 
-  if (eventType && !eventType.startsWith('checkout.')) {
+  // Only process checkout.* events — ignore everything else silently
+  if (!eventType.startsWith('checkout.')) {
     return NextResponse.json({ ok: true });
   }
-  if (!checkout) {
+
+  const data = body.data as Record<string, unknown> | undefined;
+  const checkout = data?.checkout as { id?: string; status?: string; externalId?: string | null } | undefined;
+
+  if (!checkout?.id) {
     return NextResponse.json({ error: 'Payload de checkout inválido' }, { status: 400 });
   }
 
