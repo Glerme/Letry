@@ -5,7 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import type { BillingPlanCode } from '@/lib/billing/types';
-import { isValidBrazilCellphone, isValidTaxId } from '@/lib/validations/billing-customer';
+import {
+  formatCellphoneInput,
+  formatTaxIdInput,
+  isValidBrazilCellphone,
+  isValidTaxId,
+} from '@/lib/validations/billing-customer';
 
 interface UpgradeButtonProps {
   className?: string;
@@ -162,15 +167,19 @@ export const UpgradeButton = ({
                 id={`${selectedPlan}-cellphone`}
                 label="Telefone"
                 value={cellphone}
-                onChange={(event) => setCellphone(event.target.value)}
+                onChange={(event) => setCellphone(formatCellphoneInput(event.target.value))}
                 placeholder="(11) 99999-9999"
+                inputMode="tel"
+                maxLength={15}
               />
               <Input
                 id={`${selectedPlan}-taxid`}
                 label="CPF ou CNPJ"
                 value={taxId}
-                onChange={(event) => setTaxId(event.target.value)}
+                onChange={(event) => setTaxId(formatTaxIdInput(event.target.value))}
                 placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                inputMode="numeric"
+                maxLength={18}
               />
             </>
           )}

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  formatCellphoneInput,
+  formatTaxIdInput,
   isValidBrazilCellphone,
   isValidCnpj,
   isValidCpf,
@@ -29,5 +31,15 @@ describe('billing customer validations', () => {
   it('normalizes tax id to digits', () => {
     expect(normalizeTaxId('529.982.247-25')).toBe('52998224725');
     expect(normalizeTaxId('45.723.174/0001-10')).toBe('45723174000110');
+  });
+
+  it('formats cellphone input to brazilian mask', () => {
+    expect(formatCellphoneInput('+55 (11) 99999-999999')).toBe('(11) 99999-9999');
+    expect(formatCellphoneInput('1198765432')).toBe('(11) 9876-5432');
+  });
+
+  it('formats tax id input as cpf or cnpj', () => {
+    expect(formatTaxIdInput('52998224725')).toBe('529.982.247-25');
+    expect(formatTaxIdInput('45723174000110999')).toBe('45.723.174/0001-10');
   });
 });
