@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { POST } from '@/app/api/webhooks/abacate-pay/route';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { verifyWebhookSignature } from '@/lib/billing/abacate-pay';
 
 vi.mock('@/lib/supabase/server', () => ({
-  createClient: vi.fn(),
+  createServiceClient: vi.fn(),
 }));
 
 vi.mock('@/lib/billing/abacate-pay', () => ({
@@ -35,7 +35,7 @@ describe('POST /api/webhooks/abacate-pay', () => {
     vi.mocked(verifyWebhookSignature).mockReturnValue(true);
 
     const upsert = vi.fn(async () => ({ error: null }));
-    vi.mocked(createClient).mockResolvedValue({
+    vi.mocked(createServiceClient).mockReturnValue({
       from: vi.fn(() => ({ upsert })),
     } as never);
 

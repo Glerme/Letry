@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { getBillingProduct } from '@/lib/billing/plans';
 import { verifyWebhookSignature } from '@/lib/billing/abacate-pay';
 import type { BillingPlanCode, PlanTier, SubscriptionStatus } from '@/lib/billing/types';
@@ -121,7 +121,7 @@ export const POST = async (request: Request) => {
     }
 
     const state = buildSubscriptionState(eventType, checkout.status ?? 'PENDING', reference.planCode);
-    const supabase = await createClient();
+    const supabase = createServiceClient();
 
     const { error } = await supabase.from('user_subscriptions').upsert(
       {
