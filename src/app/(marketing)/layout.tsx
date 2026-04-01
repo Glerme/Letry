@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Orbitron, Rajdhani } from 'next/font/google';
+import { createClient } from '@/lib/supabase/server';
 
 interface MarketingLayoutProps {
   children: ReactNode;
@@ -18,7 +19,15 @@ const rajdhani = Rajdhani({
   variable: '--font-rajdhani',
 });
 
-export default function MarketingLayout({ children }: MarketingLayoutProps) {
+export default async function MarketingLayout({ children }: MarketingLayoutProps) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const authNav = user
+    ? { href: '/dashboard', label: 'Meu painel' }
+    : { href: '/login', label: 'Entrar' };
+
   return (
     <div
       className={`${orbitron.variable} ${rajdhani.variable} cp-root min-h-screen bg-zinc-950 [font-family:var(--font-rajdhani)]`}
@@ -31,10 +40,10 @@ export default function MarketingLayout({ children }: MarketingLayoutProps) {
           </Link>
           <div className="flex items-center gap-4">
             <Link
-              href="/login"
+              href={authNav.href}
               className="text-sm uppercase tracking-[0.14em] text-zinc-300 transition-colors hover:text-white"
             >
-              Entrar
+              {authNav.label}
             </Link>
             <Link
               href="/create"

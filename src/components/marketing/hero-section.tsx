@@ -1,6 +1,14 @@
 import Link from 'next/link';
 
-export const HeroSection = () => {
+interface HeroSectionProps {
+  isAuthenticated?: boolean;
+}
+
+export const HeroSection = ({ isAuthenticated = false }: HeroSectionProps) => {
+  const authCta = isAuthenticated
+    ? { href: '/dashboard', label: 'Meu painel' }
+    : { href: '/login', label: 'Entrar' };
+
   return (
     <section className="relative overflow-hidden rounded-3xl border border-[var(--cp-border)] bg-[var(--cp-surface)]/70 p-8 shadow-[var(--cp-shadow)] backdrop-blur-xl sm:p-12">
       <div className="cp-scanline pointer-events-none absolute inset-0 opacity-30" />
@@ -23,8 +31,8 @@ export const HeroSection = () => {
           <Link href="/create" className="cp-button-primary">
             Criar letreiro grátis
           </Link>
-          <Link href="/login" className="cp-button-secondary">
-            Entrar
+          <Link href={authCta.href} className="cp-button-secondary">
+            {authCta.label}
           </Link>
         </div>
       </div>

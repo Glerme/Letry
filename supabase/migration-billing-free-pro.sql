@@ -1,7 +1,6 @@
--- supabase/schema.sql
--- Run this in the Supabase Dashboard > SQL Editor
+-- Run this on existing projects to enable Free/Pro monetization rules
 
-CREATE TABLE public.user_subscriptions (
+CREATE TABLE IF NOT EXISTS public.user_subscriptions (
   user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   plan_tier VARCHAR(10) NOT NULL DEFAULT 'free' CHECK (plan_tier IN ('free', 'pro')),
   status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'past_due', 'canceled')),
@@ -12,7 +11,8 @@ CREATE TABLE public.user_subscriptions (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_user_subscriptions_provider_reference ON user_subscriptions(provider_reference);
+CREATE INDEX IF NOT EXISTS idx_user_subscriptions_provider_reference
+  ON public.user_subscriptions(provider_reference);
 
 CREATE OR REPLACE FUNCTION public.touch_updated_at()
 RETURNS trigger
@@ -24,36 +24,10 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS trg_user_subscriptions_touch_updated_at ON public.user_subscriptions;
 CREATE TRIGGER trg_user_subscriptions_touch_updated_at
 BEFORE UPDATE ON public.user_subscriptions
 FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
-
-CREATE TABLE public.signs (
-  id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  slug        VARCHAR(7) UNIQUE NOT NULL,
-  text        VARCHAR(200) NOT NULL,
-  animation   VARCHAR(20) NOT NULL DEFAULT 'scroll',
-  led_color   VARCHAR(7) NOT NULL DEFAULT '#ff6600',
-  bg_color    VARCHAR(7) NOT NULL DEFAULT '#111111',
-  speed       VARCHAR(10) NOT NULL DEFAULT 'normal',
-  loop_mode   VARCHAR(12) NOT NULL DEFAULT 'infinite',
-  restart_seconds SMALLINT NULL,
-  user_id     UUID REFERENCES auth.users(id) ON DELETE SET NULL,
-  created_at  TIMESTAMPTZ DEFAULT now(),
-  CONSTRAINT signs_loop_mode_check CHECK (loop_mode IN ('infinite', 'restart', 'once')),
-  CONSTRAINT signs_restart_seconds_range_check CHECK (
-    restart_seconds IS NULL OR (restart_seconds BETWEEN 1 AND 120)
-  ),
-  CONSTRAINT signs_restart_seconds_mode_check CHECK (
-    (loop_mode = 'restart' AND restart_seconds IS NOT NULL)
-    OR (loop_mode <> 'restart' AND restart_seconds IS NULL)
-  )
-);
-
-CREATE UNIQUE INDEX idx_signs_slug ON signs(slug);
-CREATE INDEX idx_signs_user_id ON signs(user_id) WHERE user_id IS NOT NULL;
-
-ALTER TABLE signs ENABLE ROW LEVEL SECURITY;
 
 CREATE OR REPLACE FUNCTION public.enforce_sign_plan_limits()
 RETURNS trigger
@@ -101,28 +75,14 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS trg_signs_enforce_plan_limits ON public.signs;
 CREATE TRIGGER trg_signs_enforce_plan_limits
 BEFORE INSERT ON public.signs
 FOR EACH ROW
 EXECUTE FUNCTION public.enforce_sign_plan_limits();
 
--- Anyone can read any sign (public display)
-CREATE POLICY "Signs are public for reading"
-  ON signs FOR SELECT
-  USING (true);
-
--- Only authenticated users can create signs tied to themselves
+DROP POLICY IF EXISTS "Anyone can create signs" ON public.signs;
+DROP POLICY IF EXISTS "Authenticated users can create signs" ON public.signs;
 CREATE POLICY "Authenticated users can create signs"
-  ON signs FOR INSERT
+  ON public.signs FOR INSERT
   WITH CHECK (auth.uid() = user_id);
-
--- Only owner can update their sign
-CREATE POLICY "Owner can update their sign"
-  ON signs FOR UPDATE
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
-
--- Only owner can delete their sign
-CREATE POLICY "Owner can delete their sign"
-  ON signs FOR DELETE
-  USING (auth.uid() = user_id);

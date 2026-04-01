@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { SignCard } from '@/components/sign/sign-card';
 import { Button } from '@/components/ui/button';
+import { getEffectivePlan } from '@/lib/billing/plans';
+import { UpgradeButton } from '@/components/billing/upgrade-button';
 import type { OwnedSign } from '@/lib/validations/sign';
 
 export const metadata: Metadata = {
@@ -18,13 +20,16 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/login');
 
-  const { data: signs } = await supabase
-    .from('signs')
-    .select('id, slug, text, animation, led_color, bg_color, speed, loop_mode, restart_seconds, created_at')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
+  const [plan, signsResult] = await Promise.all([
+    getEffectivePlan(user.id),
+    supabase
+      .from('signs')
+      .select('id, slug, text, animation, led_color, bg_color, speed, loop_mode, restart_seconds, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }),
+  ]);
 
-  const signList = (signs ?? []) as OwnedSign[];
+  const signList = (signsResult.data ?? []) as OwnedSign[];
 
   return (
     <div className="flex flex-col gap-6">
@@ -36,10 +41,21 @@ export default async function DashboardPage() {
               ? 'Nenhum letreiro ainda.'
               : `${signList.length} letreiro${signList.length !== 1 ? 's' : ''}`}
           </p>
+          <p className="mt-1 text-xs uppercase tracking-wide text-cyan-300">
+            Plano atual: {plan.tier === 'pro' ? 'Pro' : 'Grátis'}
+          </p>
         </div>
-        <Link href="/create">
-          <Button>Criar letreiro</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          {plan.tier === 'free' && (
+            <>
+              <UpgradeButton label="Pro mensal (cartão)" plan="pro_monthly_card" />
+              <UpgradeButton label="Pro anual (Pix)" plan="pro_annual_pix" />
+            </>
+          )}
+          <Link href="/create">
+            <Button>Criar letreiro</Button>
+          </Link>
+        </div>
       </div>
 
       {signList.length === 0 ? (

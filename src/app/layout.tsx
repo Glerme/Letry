@@ -9,6 +9,11 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Letry — Letreiros digitais animados',
   description: 'Crie letreiros digitais animados e compartilhe com um link',
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
   openGraph: {
     title: 'Letry',
     description: 'Crie letreiros digitais animados e compartilhe com um link',

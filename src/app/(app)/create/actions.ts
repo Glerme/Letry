@@ -2,6 +2,7 @@
 
 import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
+import { canCreateMoreSigns, getEffectivePlan, isAnimationAllowedForPlan } from '@/lib/billing/plans';
 import { checkRateLimit } from '@/lib/security/rate-limit';
 import { signSchema } from '@/lib/validations/sign';
 import { generateSlug } from '@/lib/utils/slug';
@@ -22,22 +23,40 @@ export const createSign = async (data: unknown): Promise<CreateSignResult> => {
     error: authError,
   } = await supabase.auth.getUser();
 
-  // If auth service failed, don't silently create anonymous sign
   if (authError) {
     console.error('Auth error in createSign:', authError.message);
-    // Continue as anonymous — auth failure doesn't prevent sign creation
-    // (anonymous signs are a supported use case)
+    return { success: false, error: 'Não foi possível validar sua sessão.' };
   }
+
+  if (!user) return { success: false, error: 'Faça login para criar letreiros.' };
 
   const requestHeaders = await headers();
   const rateLimit = await checkRateLimit({
     operation: 'signs:create',
     headersList: requestHeaders,
-    userId: user?.id,
+    userId: user.id,
   });
 
   if (!rateLimit.success) {
     return { success: false, error: 'Muitas tentativas. Tente novamente.' };
+  }
+
+  const plan = await getEffectivePlan(user.id);
+  if (!isAnimationAllowedForPlan(plan, parsed.data.animation)) {
+    return { success: false, error: 'Animação disponível apenas no plano Pro.' };
+  }
+
+  const { count, error: countError } = await supabase
+    .from('signs')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id);
+
+  if (countError) {
+    return { success: false, error: 'Erro ao validar limite do plano.' };
+  }
+
+  if (!canCreateMoreSigns(plan, count ?? 0)) {
+    return { success: false, error: 'No plano grátis você pode ter apenas 1 letreiro ativo.' };
   }
 
   const slug = generateSlug();
@@ -51,7 +70,7 @@ export const createSign = async (data: unknown): Promise<CreateSignResult> => {
     speed: parsed.data.speed,
     loop_mode: parsed.data.loop_mode,
     restart_seconds: parsed.data.restart_seconds,
-    user_id: user?.id ?? null,
+    user_id: user.id,
   });
 
   if (error) {
@@ -67,7 +86,7 @@ export const createSign = async (data: unknown): Promise<CreateSignResult> => {
         speed: parsed.data.speed,
         loop_mode: parsed.data.loop_mode,
         restart_seconds: parsed.data.restart_seconds,
-        user_id: user?.id ?? null,
+        user_id: user.id,
       });
       if (retryError) {
         return { success: false, error: 'Erro ao salvar letreiro. Tente novamente.' };
