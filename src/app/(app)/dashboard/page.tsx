@@ -6,6 +6,7 @@ import { SignCard } from '@/components/sign/sign-card';
 import { Button } from '@/components/ui/button';
 import { getEffectivePlan } from '@/lib/billing/plans';
 import { UpgradeButton } from '@/components/billing/upgrade-button';
+import { BillingSuccessBanner } from '@/components/billing/billing-success-banner';
 import type { OwnedSign } from '@/lib/validations/sign';
 
 export const metadata: Metadata = {
@@ -19,7 +20,13 @@ export const logoutAction = async () => {
   redirect('/login');
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const params = await searchParams;
+  const showBillingBanner = params.billing === 'success';
   const supabase = await createClient();
   const {
     data: { user },
@@ -40,6 +47,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      {showBillingBanner && <BillingSuccessBanner initialTier={plan.tier} />}
       <div className="flex items-center justify-end">
         <form action={logoutAction}>
           <Button

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { getBillingProduct } from '@/lib/billing/plans';
@@ -139,6 +140,7 @@ export const POST = async (request: Request) => {
       return NextResponse.json({ error: 'Erro ao sincronizar assinatura' }, { status: 500 });
     }
 
+    try { revalidatePath('/dashboard'); } catch { /* no-op outside Next.js runtime */ }
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('Error processing Abacate Pay webhook:', error);

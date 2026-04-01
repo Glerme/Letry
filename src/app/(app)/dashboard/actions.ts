@@ -5,6 +5,20 @@ import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/security/rate-limit';
 import { signIdSchema } from '@/lib/validations/sign';
+import { getEffectivePlan } from '@/lib/billing/plans';
+import type { PlanTier } from '@/lib/billing/types';
+
+export const checkSubscriptionStatus = async (): Promise<{ tier: PlanTier } | { error: string }> => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Não autenticado' };
+
+  const plan = await getEffectivePlan(user.id);
+  return { tier: plan.tier };
+};
 
 export type DeleteSignResult =
   | { success: true }
