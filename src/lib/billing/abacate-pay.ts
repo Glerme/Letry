@@ -59,10 +59,18 @@ interface CreateBillingResponse {
   url?: string;
 }
 
+export interface AbacateCheckoutCustomer {
+  name: string;
+  cellphone: string;
+  email: string;
+  taxId: string;
+}
+
 export const createCheckout = async (
   userId: string,
   product: BillingProductConfig,
-  returnTo: string
+  returnTo: string,
+  customer: AbacateCheckoutCustomer | null
 ): Promise<{ checkoutUrl: string; providerReference: string }> => {
   const appUrl = getAppUrl();
   const successUrl = `${appUrl}${returnTo}`;
@@ -83,6 +91,7 @@ export const createCheckout = async (
     returnUrl: string;
     completionUrl: string;
     customerId?: string;
+    customer?: AbacateCheckoutCustomer;
   } = {
     frequency: 'ONE_TIME',
     methods,
@@ -101,6 +110,10 @@ export const createCheckout = async (
   };
   if (customerId) {
     payload.customerId = customerId;
+  } else if (customer) {
+    payload.customer = customer;
+  } else {
+    throw new Error('Missing customer data. Provide customer or ABACATEPAY_CUSTOMER_ID.');
   }
 
   const rawResponse = await abacatePayRequest<

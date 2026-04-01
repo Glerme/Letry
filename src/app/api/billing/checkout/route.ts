@@ -5,12 +5,20 @@ import { BILLING_PLANS, type BillingPlanCode } from '@/lib/billing/types';
 import { createCheckout } from '@/lib/billing/abacate-pay';
 import { getBillingProduct } from '@/lib/billing/plans';
 
+const customerSchema = z.object({
+  name: z.string().min(3, 'Nome inválido'),
+  email: z.string().email('E-mail inválido'),
+  cellphone: z.string().min(8, 'Celular inválido'),
+  taxId: z.string().min(11, 'CPF/CNPJ inválido'),
+});
+
 const checkoutSchema = z.object({
   plan: z.enum(BILLING_PLANS),
   returnTo: z
     .string()
     .startsWith('/', 'URL de retorno inválida')
     .default('/dashboard?billing=success'),
+  customer: customerSchema.optional(),
 });
 
 export const POST = async (request: Request) => {
@@ -29,13 +37,20 @@ export const POST = async (request: Request) => {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
+  if (!parsed.data.customer && !process.env.ABACATEPAY_CUSTOMER_ID) {
+    return NextResponse.json(
+      { error: 'Preencha seus dados para iniciar o checkout.' },
+      { status: 400 }
+    );
+  }
 
   try {
     const product = getBillingProduct(parsed.data.plan as BillingPlanCode);
     const { checkoutUrl, providerReference } = await createCheckout(
       user.id,
       product,
-      parsed.data.returnTo
+      parsed.data.returnTo,
+      parsed.data.customer ?? null
     );
 
     await supabase.from('user_subscriptions').upsert(
