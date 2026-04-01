@@ -13,4 +13,4 @@ pnpm test:run     # Vitest single run
 ```
 
 - Use `process.env.VAR` for config values, never raw `ENV`
-- CSS uses `--theme-*` variables, not hardcoded colors
+- For CSS, use tailwindcss v4 utilities and custom properties for theming
