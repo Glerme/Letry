@@ -6,7 +6,20 @@ import { Providers } from './providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://letry.app';
+function getSiteUrl(): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL;
+  if (raw) {
+    try {
+      new URL(raw);
+      return raw;
+    } catch {
+      // fall through to default
+    }
+  }
+  return 'https://letry.app';
+}
+
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
