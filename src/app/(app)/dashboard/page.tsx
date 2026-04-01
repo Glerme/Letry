@@ -46,12 +46,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {plan.tier === 'free' && (
-            <>
-              <UpgradeButton label="Pro mensal (Pix)" plan="pro_monthly_pix" />
-              <UpgradeButton label="Pro anual (Pix)" plan="pro_annual_pix" />
-            </>
-          )}
+          {plan.tier === 'free' && <UpgradeButton label="Fazer upgrade para Pro" />}
           <Link href="/create">
             <Button>Criar letreiro</Button>
           </Link>

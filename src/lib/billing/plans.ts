@@ -41,16 +41,30 @@ const getEnvPriceInBrl = (envName: 'BILLING_PRO_MONTHLY_BRL' | 'BILLING_PRO_ANNU
 const getBillingProducts = (): Record<BillingPlanCode, BillingProductConfig> => ({
   pro_monthly_pix: {
     code: 'pro_monthly_pix',
-    title: 'Letry Pro Mensal',
+    title: 'Letry Pro Mensal (Pix)',
     amount: getEnvPriceInBrl('BILLING_PRO_MONTHLY_BRL'),
     paymentMethod: 'pix',
     periodDays: 30,
   },
+  pro_monthly_card: {
+    code: 'pro_monthly_card',
+    title: 'Letry Pro Mensal (Cartão)',
+    amount: getEnvPriceInBrl('BILLING_PRO_MONTHLY_BRL'),
+    paymentMethod: 'card',
+    periodDays: 30,
+  },
   pro_annual_pix: {
     code: 'pro_annual_pix',
-    title: 'Letry Pro Anual',
+    title: 'Letry Pro Anual (Pix)',
     amount: getEnvPriceInBrl('BILLING_PRO_ANNUAL_BRL'),
     paymentMethod: 'pix',
+    periodDays: 365,
+  },
+  pro_annual_card: {
+    code: 'pro_annual_card',
+    title: 'Letry Pro Anual (Cartão)',
+    amount: getEnvPriceInBrl('BILLING_PRO_ANNUAL_BRL'),
+    paymentMethod: 'card',
     periodDays: 365,
   },
 });

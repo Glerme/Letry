@@ -24,12 +24,17 @@ const parseReference = (
 ): { userId: string; planCode: BillingPlanCode } | null => {
   if (!externalReference) return null;
   const [userId, planCodeRaw] = externalReference.split(':');
-  const normalizedPlanCode =
-    (planCodeRaw ?? fallbackPlan) === 'pro_monthly_card' ? 'pro_monthly_pix' : (planCodeRaw ?? fallbackPlan);
-  const planCode = normalizedPlanCode as BillingPlanCode | undefined;
+  const planCode = (planCodeRaw ?? fallbackPlan) as BillingPlanCode | undefined;
 
   if (!userId) return null;
-  if (planCode !== 'pro_monthly_pix' && planCode !== 'pro_annual_pix') return null;
+  if (
+    planCode !== 'pro_monthly_pix' &&
+    planCode !== 'pro_monthly_card' &&
+    planCode !== 'pro_annual_pix' &&
+    planCode !== 'pro_annual_card'
+  ) {
+    return null;
+  }
 
   return { userId, planCode };
 };

@@ -4,21 +4,21 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import type { BillingPlanCode } from '@/lib/billing/types';
 
 interface UpgradeButtonProps {
   className?: string;
-  plan?: 'pro_monthly_pix' | 'pro_annual_pix';
   fullWidth?: boolean;
   label?: string;
 }
 
 export const UpgradeButton = ({
   className,
-  plan = 'pro_annual_pix',
   fullWidth = false,
   label = 'Fazer upgrade para Pro',
 }: UpgradeButtonProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<BillingPlanCode | null>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [cellphone, setCellphone] = useState('');
@@ -35,6 +35,11 @@ export const UpgradeButton = ({
   };
 
   const handleUpgrade = async () => {
+    if (!selectedPlan) {
+      setError('Escolha uma forma de pagamento.');
+      return;
+    }
+
     const validationError = validateCustomerFields();
     if (validationError) {
       setError(validationError);
@@ -49,7 +54,7 @@ export const UpgradeButton = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          plan,
+          plan: selectedPlan,
           returnTo: '/dashboard?billing=success',
           customer: {
             name: name.trim(),
@@ -81,8 +86,28 @@ export const UpgradeButton = ({
   };
 
   const handleOpenDialog = () => {
+    setSelectedPlan(null);
     setError(null);
     setIsDialogOpen(true);
+  };
+  const isPixPlan = selectedPlan?.includes('_pix') ?? false;
+  const isChoosingPlan = selectedPlan === null;
+  const checkoutButtonLabel = isPixPlan ? 'Gerar PIX' : 'Continuar';
+
+  const paymentOptions: Array<{
+    plan: BillingPlanCode;
+    label: string;
+    description: string;
+  }> = [
+    { plan: 'pro_monthly_pix', label: 'Mensal no Pix', description: 'R$ mensal via Pix' },
+    { plan: 'pro_monthly_card', label: 'Mensal no Cartão', description: 'R$ mensal no cartão' },
+    { plan: 'pro_annual_pix', label: 'Anual no Pix', description: 'R$ anual via Pix' },
+    { plan: 'pro_annual_card', label: 'Anual no Cartão', description: 'R$ anual no cartão' },
+  ];
+
+  const handleSelectPlan = (plan: BillingPlanCode) => {
+    setSelectedPlan(plan);
+    setError(null);
   };
 
   return (
@@ -94,47 +119,76 @@ export const UpgradeButton = ({
       <Dialog
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        title={plan === 'pro_annual_pix' ? 'Pagar com PIX' : 'Pagar com cartão'}
+        title={isChoosingPlan ? 'Escolha a forma de pagamento' : isPixPlan ? 'Pagar com PIX' : 'Pagar com cartão'}
       >
         <div className="space-y-3">
-          <p className="text-sm text-zinc-300">Preencha os dados para continuar no checkout seguro.</p>
-          <Input
-            id={`${plan}-name`}
-            label="Nome completo"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Seu nome completo"
-          />
-          <Input
-            id={`${plan}-email`}
-            type="email"
-            label="E-mail"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="voce@email.com"
-          />
-          <Input
-            id={`${plan}-cellphone`}
-            label="Telefone"
-            value={cellphone}
-            onChange={(event) => setCellphone(event.target.value)}
-            placeholder="(11) 99999-9999"
-          />
-          <Input
-            id={`${plan}-taxid`}
-            label="CPF ou CNPJ"
-            value={taxId}
-            onChange={(event) => setTaxId(event.target.value)}
-            placeholder="000.000.000-00 ou 00.000.000/0000-00"
-          />
+          {isChoosingPlan ? (
+            <>
+              <p className="text-sm text-zinc-300">Escolha o ciclo e método para continuar.</p>
+              <div className="grid gap-2">
+                {paymentOptions.map((option) => (
+                  <button
+                    key={option.plan}
+                    type="button"
+                    onClick={() => handleSelectPlan(option.plan)}
+                    className="w-full rounded-md border border-[var(--cp-border)] bg-[rgba(10,14,30,0.65)] px-3 py-2 text-left transition-colors hover:border-[var(--cp-cyan)]"
+                  >
+                    <p className="text-sm font-medium text-white">{option.label}</p>
+                    <p className="text-xs text-zinc-300">{option.description}</p>
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-zinc-300">Preencha os dados para continuar no checkout seguro.</p>
+              <Input
+                id={`${selectedPlan}-name`}
+                label="Nome completo"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Seu nome completo"
+              />
+              <Input
+                id={`${selectedPlan}-email`}
+                type="email"
+                label="E-mail"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="voce@email.com"
+              />
+              <Input
+                id={`${selectedPlan}-cellphone`}
+                label="Telefone"
+                value={cellphone}
+                onChange={(event) => setCellphone(event.target.value)}
+                placeholder="(11) 99999-9999"
+              />
+              <Input
+                id={`${selectedPlan}-taxid`}
+                label="CPF ou CNPJ"
+                value={taxId}
+                onChange={(event) => setTaxId(event.target.value)}
+                placeholder="000.000.000-00 ou 00.000.000/0000-00"
+              />
+            </>
+          )}
+
           {error && <p className="text-sm text-red-400">{error}</p>}
           <div className="flex justify-end gap-2 pt-1">
+            {!isChoosingPlan && (
+              <Button variant="ghost" onClick={() => setSelectedPlan(null)} disabled={loading}>
+                Voltar
+              </Button>
+            )}
             <Button variant="secondary" onClick={() => setIsDialogOpen(false)} disabled={loading}>
               Cancelar
             </Button>
-            <Button onClick={handleUpgrade} loading={loading}>
-              {plan === 'pro_annual_pix' ? 'Gerar PIX' : 'Continuar'}
-            </Button>
+            {!isChoosingPlan && (
+              <Button onClick={handleUpgrade} loading={loading}>
+                {checkoutButtonLabel}
+              </Button>
+            )}
           </div>
         </div>
       </Dialog>

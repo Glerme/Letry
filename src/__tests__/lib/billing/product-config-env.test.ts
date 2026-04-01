@@ -26,11 +26,15 @@ describe('billing product config env', () => {
     process.env[MONTHLY_ENV] = '29.9';
     process.env[ANNUAL_ENV] = '299';
 
-    const monthly = getBillingProduct('pro_monthly_pix');
+    const monthlyPix = getBillingProduct('pro_monthly_pix');
+    const monthlyCard = getBillingProduct('pro_monthly_card');
     const annual = getBillingProduct('pro_annual_pix');
+    const annualCard = getBillingProduct('pro_annual_card');
 
-    expect(monthly.amount).toBe(29.9);
+    expect(monthlyPix.amount).toBe(29.9);
+    expect(monthlyCard.amount).toBe(29.9);
     expect(annual.amount).toBe(299);
+    expect(annualCard.amount).toBe(299);
   });
 
   it('throws when monthly price env is missing', () => {
