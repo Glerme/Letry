@@ -33,3 +33,19 @@ body {
 :fullscreen body {
   background: #000;
 }
+
+/* Flip tile animations */
+@keyframes flipTileOut {
+  from { transform: perspective(400px) rotateX(0deg); }
+  to   { transform: perspective(400px) rotateX(-90deg); }
+}
+@keyframes flipTileIn {
+  from { transform: perspective(400px) rotateX(90deg); }
+  to   { transform: perspective(400px) rotateX(0deg); }
+}
+.flip-tile-out-slow   { animation: flipTileOut 120ms ease-in  forwards; }
+.flip-tile-out-normal { animation: flipTileOut  70ms ease-in  forwards; }
+.flip-tile-out-fast   { animation: flipTileOut  40ms ease-in  forwards; }
+.flip-tile-in-slow    { animation: flipTileIn  120ms ease-out forwards; }
+.flip-tile-in-normal  { animation: flipTileIn   70ms ease-out forwards; }
+.flip-tile-in-fast    { animation: flipTileIn   40ms ease-out forwards; }

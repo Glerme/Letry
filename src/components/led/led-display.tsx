@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { LEDGrid } from './led-grid';
+import { FlipDisplay } from './flip-display';
 import { getCharBitmap, CHAR_WIDTH, CHAR_HEIGHT } from './font-bitmap';
 import { animations } from './animations';
 import type { AnimationConfig, AnimationState } from './animations/types';
@@ -58,23 +59,25 @@ export const LEDDisplay = ({
   bgColor,
   speed,
 }: LEDDisplayProps) => {
-  // Lazy initializer computes the first frame without calling setState inside an effect
+  const isFlip = animationType === 'flip';
+
+  // Lazy initializer — skipped for 'flip' which has its own renderer
   const [grid, setGrid] = useState<boolean[][]>(() => {
+    if (isFlip) return [];
     const config = buildConfig(text, animationType, speed);
     return animations[animationType].init(config).grid;
   });
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  // Keep a mutable ref to animation state so the interval closure stays current
   const animStateRef = useRef<AnimationState | null>(null);
 
   useEffect(() => {
+    if (isFlip) return;
     if (intervalRef.current) clearInterval(intervalRef.current);
 
     const anim = animations[animationType];
     const config = buildConfig(text, animationType, speed);
     animStateRef.current = anim.init(config);
-    // Show first frame — allowed here because it mirrors the lazy initializer
     setGrid(animStateRef.current.grid.map((row) => [...row]));
 
     intervalRef.current = setInterval(() => {
@@ -82,7 +85,6 @@ export const LEDDisplay = ({
       animStateRef.current = anim.tick(animStateRef.current, config);
       setGrid(animStateRef.current.grid.map((row) => [...row]));
 
-      // Stop when animation signals it is done
       if (!animStateRef.current.running) {
         if (intervalRef.current) clearInterval(intervalRef.current);
       }
@@ -91,7 +93,11 @@ export const LEDDisplay = ({
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [text, animationType, speed]);
+  }, [text, animationType, speed, isFlip]);
+
+  if (isFlip) {
+    return <FlipDisplay text={text} ledColor={ledColor} bgColor={bgColor} speed={speed} />;
+  }
 
   return (
     <div

@@ -12,8 +12,19 @@ Sign-specific components used across creation and display flows.
 `Watermark` — fixed branding in bottom-right of display page.
 Links back to letry.app home.
 
-## (future)
-- sign-form.tsx — creation form with live preview
-- sign-preview.tsx — LED display preview wrapper
-- sign-card.tsx — dashboard card per sign
-- fullscreen-button.tsx — fullscreen toggle for display page
+## sign-form.tsx
+`SignForm` — full creation form with react-hook-form + zodResolver.
+Live preview via useWatch. Calls createSign Server Action. Shows ShareDialog on success.
+
+## sign-preview.tsx
+`SignPreview` — thin wrapper around LEDDisplay with a rounded border.
+
+## sign-card.tsx
+`SignCard({ sign })` — dashboard card for each sign.
+- LED-styled text preview with inline colors
+- Inline two-step delete confirmation (no native confirm dialog)
+- Shows delete errors inline
+- "Abrir" link opens sign in new tab
+
+## fullscreen-button.tsx
+`FullscreenButton` — fixed top-right, toggles fullscreen on click or F key press.

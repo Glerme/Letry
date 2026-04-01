@@ -1,4 +1,12 @@
 import type { Animation, AnimationConfig, AnimationState } from './types';
+import { CHAR_WIDTH } from '../font-bitmap';
+
+// Frames of random pixel noise shown per character before it settles
+const SCRAMBLE_FRAMES = 12;
+// Frames of delay between each character starting its scramble (stagger)
+const STAGGER_FRAMES = 4;
+// Column stride per character: 5px wide + 1px gap
+const CHAR_STEP = CHAR_WIDTH + 1;
 
 export const splitFlapAnimation: Animation = {
   name: 'split-flap',
@@ -19,36 +27,32 @@ export const splitFlapAnimation: Animation = {
     const totalCols = textBitmap[0]?.length ?? 0;
     const frame = (state.frame ?? 0) + 1;
 
-    // Each "frame group" reveals one column
-    const FLIPS_PER_COL = 4;
-    const currentCol = Math.floor(frame / FLIPS_PER_COL);
+    const numChars = Math.ceil(visibleCols / CHAR_STEP);
+    const lastSettleFrame = (numChars - 1) * STAGGER_FRAMES + SCRAMBLE_FRAMES;
 
-    if (currentCol >= visibleCols) {
-      // All columns revealed — show final state
+    if (frame > lastSettleFrame) {
       const finalGrid: boolean[][] = Array.from({ length: rows }, (_, row) =>
-        Array.from({ length: visibleCols }, (__, col) => {
-          const srcCol = col < totalCols ? col : -1;
-          return srcCol >= 0 ? (textBitmap[row][srcCol] ?? false) : false;
-        })
+        Array.from({ length: visibleCols }, (__, col) =>
+          col < totalCols ? (textBitmap[row][col] ?? false) : false
+        )
       );
       return { grid: finalGrid, running: false, frame };
     }
 
     const grid: boolean[][] = Array.from({ length: rows }, (_, row) =>
       Array.from({ length: visibleCols }, (__, col) => {
-        const srcCol = col < totalCols ? col : -1;
-        const target = srcCol >= 0 ? (textBitmap[row][srcCol] ?? false) : false;
+        const charIdx = Math.floor(col / CHAR_STEP);
+        const startFrame = charIdx * STAGGER_FRAMES;
+        const settleFrame = startFrame + SCRAMBLE_FRAMES;
 
-        if (col < currentCol) {
-          // Already settled columns — show final
-          return target;
+        if (frame < startFrame) return false;
+
+        if (frame >= settleFrame) {
+          return col < totalCols ? (textBitmap[row][col] ?? false) : false;
         }
-        if (col === currentCol) {
-          // Flipping: show random state regardless of target
-          return Math.random() > 0.5;
-        }
-        // Not yet revealed
-        return false;
+
+        // Scrambling — random pixel noise
+        return Math.random() > 0.5;
       })
     );
 

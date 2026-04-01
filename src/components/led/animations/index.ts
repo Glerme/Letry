@@ -6,7 +6,7 @@ import type { AnimationType } from '@/lib/utils/constants';
 
 export type { Animation, AnimationState, AnimationConfig } from './types';
 
-export const animations: Record<AnimationType, Animation> = {
+export const animations: Record<Exclude<AnimationType, 'flip'>, Animation> = {
   scroll: scrollAnimation,
   fade: fadeAnimation,
   'split-flap': splitFlapAnimation,

@@ -1,4 +1,4 @@
-export const ANIMATIONS = ['scroll', 'split-flap', 'fade'] as const;
+export const ANIMATIONS = ['scroll', 'split-flap', 'fade', 'flip'] as const;
 export type AnimationType = (typeof ANIMATIONS)[number];
 
 export const SPEEDS = ['slow', 'normal', 'fast'] as const;
