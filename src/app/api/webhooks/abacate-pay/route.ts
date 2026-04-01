@@ -86,6 +86,10 @@ export const POST = async (request: Request) => {
   // devMode payloads (dashboard test) have no HMAC signature — skip check in non-production
   const isDevMode = body.devMode === true;
   if (!isDevMode && !verifyWebhookSignature(rawBody, signature)) {
+    console.error('[webhook] signature check failed', {
+      signatureHeader: signature,
+      headers: Object.fromEntries(request.headers.entries()),
+    });
     return NextResponse.json({ error: 'Assinatura inválida' }, { status: 401 });
   }
 
