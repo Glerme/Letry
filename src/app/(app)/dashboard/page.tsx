@@ -40,6 +40,14 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-end">
+        <form action={logoutAction}>
+          <Button type="submit" variant="ghost">
+            Sair
+          </Button>
+        </form>
+      </div>
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="cp-heading text-2xl">Meus letreiros</h1>
@@ -54,11 +62,6 @@ export default async function DashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           {plan.tier === 'free' && <UpgradeButton label="Fazer upgrade para Pro" />}
-          <form action={logoutAction}>
-            <Button type="submit" variant="secondary">
-              Sair
-            </Button>
-          </form>
           <Link href="/create">
             <Button>Criar letreiro</Button>
           </Link>
