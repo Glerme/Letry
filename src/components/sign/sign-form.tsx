@@ -200,7 +200,7 @@ export const SignForm = ({ planTier, signsCount }: SignFormProps) => {
               <p className="font-medium">Plano grátis: {Math.min(signsCount, 1)}/1 letreiro ativo</p>
               <p className="mt-1 text-zinc-300">Faça upgrade para liberar mais letreiros e todas as animações.</p>
               <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <UpgradeButton className="w-full" fullWidth label="Pro mensal (cartão)" plan="pro_monthly_card" />
+                <UpgradeButton className="w-full" fullWidth label="Pro mensal (Pix)" plan="pro_monthly_pix" />
                 <UpgradeButton className="w-full" fullWidth label="Pro anual (Pix)" plan="pro_annual_pix" />
               </div>
             </div>

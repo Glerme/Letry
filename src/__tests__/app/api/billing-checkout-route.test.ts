@@ -29,7 +29,7 @@ describe('POST /api/billing/checkout', () => {
     const response = await POST(
       new Request('http://localhost/api/billing/checkout', {
         method: 'POST',
-        body: JSON.stringify({ plan: 'pro_monthly_card' }),
+        body: JSON.stringify({ plan: 'pro_monthly_pix' }),
       })
     );
 
@@ -47,7 +47,7 @@ describe('POST /api/billing/checkout', () => {
       new Request('http://localhost/api/billing/checkout', {
         method: 'POST',
         body: JSON.stringify({
-          plan: 'pro_monthly_card',
+          plan: 'pro_monthly_pix',
           returnTo: '/dashboard?billing=success',
         }),
       })

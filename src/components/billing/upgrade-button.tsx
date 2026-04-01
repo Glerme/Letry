@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
 interface UpgradeButtonProps {
   className?: string;
-  plan?: 'pro_monthly_card' | 'pro_annual_pix';
+  plan?: 'pro_monthly_pix' | 'pro_annual_pix';
   fullWidth?: boolean;
   label?: string;
 }
@@ -17,7 +18,7 @@ export const UpgradeButton = ({
   fullWidth = false,
   label = 'Fazer upgrade para Pro',
 }: UpgradeButtonProps) => {
-  const [showCustomerForm, setShowCustomerForm] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [cellphone, setCellphone] = useState('');
@@ -34,12 +35,6 @@ export const UpgradeButton = ({
   };
 
   const handleUpgrade = async () => {
-    if (!showCustomerForm) {
-      setShowCustomerForm(true);
-      setError(null);
-      return;
-    }
-
     const validationError = validateCustomerFields();
     if (validationError) {
       setError(validationError);
@@ -76,6 +71,7 @@ export const UpgradeButton = ({
         return;
       }
 
+      setIsDialogOpen(false);
       window.location.href = data.checkoutUrl;
     } catch {
       setError('Erro de conexão ao iniciar checkout.');
@@ -84,13 +80,24 @@ export const UpgradeButton = ({
     }
   };
 
+  const handleOpenDialog = () => {
+    setError(null);
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className={className}>
-      <Button onClick={handleUpgrade} loading={loading} className={fullWidth ? 'w-full' : ''}>
-        {showCustomerForm ? 'Continuar para pagamento' : label}
+      <Button onClick={handleOpenDialog} loading={loading} className={fullWidth ? 'w-full' : ''}>
+        {label}
       </Button>
-      {showCustomerForm && (
-        <div className="mt-3 space-y-2">
+
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        title={plan === 'pro_annual_pix' ? 'Pagar com PIX' : 'Pagar com cartão'}
+      >
+        <div className="space-y-3">
+          <p className="text-sm text-zinc-300">Preencha os dados para continuar no checkout seguro.</p>
           <Input
             id={`${plan}-name`}
             label="Nome completo"
@@ -108,7 +115,7 @@ export const UpgradeButton = ({
           />
           <Input
             id={`${plan}-cellphone`}
-            label="Celular"
+            label="Telefone"
             value={cellphone}
             onChange={(event) => setCellphone(event.target.value)}
             placeholder="(11) 99999-9999"
@@ -118,11 +125,19 @@ export const UpgradeButton = ({
             label="CPF ou CNPJ"
             value={taxId}
             onChange={(event) => setTaxId(event.target.value)}
-            placeholder="000.000.000-00"
+            placeholder="000.000.000-00 ou 00.000.000/0000-00"
           />
+          {error && <p className="text-sm text-red-400">{error}</p>}
+          <div className="flex justify-end gap-2 pt-1">
+            <Button variant="secondary" onClick={() => setIsDialogOpen(false)} disabled={loading}>
+              Cancelar
+            </Button>
+            <Button onClick={handleUpgrade} loading={loading}>
+              {plan === 'pro_annual_pix' ? 'Gerar PIX' : 'Continuar'}
+            </Button>
+          </div>
         </div>
-      )}
-      {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
+      </Dialog>
     </div>
   );
 };

@@ -26,7 +26,7 @@ describe('billing product config env', () => {
     process.env[MONTHLY_ENV] = '29.9';
     process.env[ANNUAL_ENV] = '299';
 
-    const monthly = getBillingProduct('pro_monthly_card');
+    const monthly = getBillingProduct('pro_monthly_pix');
     const annual = getBillingProduct('pro_annual_pix');
 
     expect(monthly.amount).toBe(29.9);
@@ -37,7 +37,7 @@ describe('billing product config env', () => {
     delete process.env[MONTHLY_ENV];
     process.env[ANNUAL_ENV] = '299';
 
-    expect(() => getBillingProduct('pro_monthly_card')).toThrowError(
+    expect(() => getBillingProduct('pro_monthly_pix')).toThrowError(
       `Missing ${MONTHLY_ENV}. Check .env.example for required keys.`
     );
   });
