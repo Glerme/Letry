@@ -28,22 +28,30 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const sign = await getSign(slug);
 
-  if (!sign) return { title: 'Sign não encontrado — Letry' };
+  if (!sign) return { title: 'Letreiro não encontrado', robots: { index: false, follow: false } };
 
   const title = sign.text.length > 60 ? `${sign.text.slice(0, 60)}...` : sign.text;
   const ogImageUrl = `/api/og/${slug}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://letry.app';
 
   return {
-    title: `${title} — Letry`,
-    description: `Veja este letreiro digital: "${title}"`,
+    title,
+    description: `Veja este letreiro digital animado: "${title}". Criado com Letry.`,
+    alternates: {
+      canonical: `${siteUrl}/s/${slug}`,
+    },
     openGraph: {
       title,
-      description: 'Veja este letreiro digital animado',
-      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+      description: `Letreiro digital animado: "${title}"`,
+      type: 'website',
+      url: `${siteUrl}/s/${slug}`,
+      siteName: 'Letry',
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
+      description: `Letreiro digital animado criado com Letry`,
       images: [ogImageUrl],
     },
   };
