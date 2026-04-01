@@ -52,7 +52,8 @@ export const POST = async (request: Request) => {
 
     return NextResponse.json({ checkoutUrl });
   } catch (error) {
-    console.error('Error creating Abacate Pay checkout:', error);
-    return NextResponse.json({ error: 'Erro ao iniciar checkout' }, { status: 500 });
+    const details = error instanceof Error ? error.message : 'Unknown checkout error';
+    console.error('Error creating Abacate Pay checkout:', details);
+    return NextResponse.json({ error: 'Erro ao iniciar checkout', details }, { status: 500 });
   }
 };
