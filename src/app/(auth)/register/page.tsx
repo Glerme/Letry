@@ -49,6 +49,38 @@ const registerAction = async (formData: FormData) => {
   redirect('/register?success=1');
 };
 
+export const registerWithGoogleAction = async () => {
+  'use server';
+  const requestHeaders = await headers();
+  const rateLimit = await checkRateLimit({
+    operation: 'auth:register:google',
+    headersList: requestHeaders,
+  });
+
+  if (!rateLimit.success) {
+    redirect(`/register?error=${AUTH_ERROR_FLAG}`);
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) {
+    redirect(`/register?error=${AUTH_ERROR_FLAG}`);
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${siteUrl}/auth/callback?next=/dashboard`,
+    },
+  });
+
+  if (error || !data.url) {
+    redirect(`/register?error=${AUTH_ERROR_FLAG}`);
+  }
+
+  redirect(data.url);
+};
+
 interface RegisterPageProps {
   searchParams: Promise<{ error?: string; success?: string }>;
 }
@@ -100,6 +132,14 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
         )}
         <Button type="submit" className="w-full mt-2">
           Criar conta
+        </Button>
+      </form>
+      <div className="my-4 text-center text-xs uppercase tracking-wider text-zinc-500">
+        ou
+      </div>
+      <form action={registerWithGoogleAction}>
+        <Button type="submit" variant="secondary" className="w-full">
+          Continuar com Google
         </Button>
       </form>
       <p className="mt-4 text-center text-sm text-zinc-300">

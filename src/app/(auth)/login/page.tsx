@@ -46,6 +46,38 @@ const loginAction = async (formData: FormData) => {
   redirect('/create');
 };
 
+export const loginWithGoogleAction = async () => {
+  'use server';
+  const requestHeaders = await headers();
+  const rateLimit = await checkRateLimit({
+    operation: 'auth:login:google',
+    headersList: requestHeaders,
+  });
+
+  if (!rateLimit.success) {
+    redirect(`/login?error=${AUTH_ERROR_FLAG}`);
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) {
+    redirect(`/login?error=${AUTH_ERROR_FLAG}`);
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${siteUrl}/auth/callback?next=/dashboard`,
+    },
+  });
+
+  if (error || !data.url) {
+    redirect(`/login?error=${AUTH_ERROR_FLAG}`);
+  }
+
+  redirect(data.url);
+};
+
 interface LoginPageProps {
   searchParams: Promise<{ error?: string }>;
 }
@@ -88,6 +120,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         )}
         <Button type="submit" className="w-full mt-2">
           Entrar
+        </Button>
+      </form>
+      <div className="my-4 text-center text-xs uppercase tracking-wider text-zinc-500">
+        ou
+      </div>
+      <form action={loginWithGoogleAction}>
+        <Button type="submit" variant="secondary" className="w-full">
+          Continuar com Google
         </Button>
       </form>
       <p className="mt-4 text-center text-sm text-zinc-300">
