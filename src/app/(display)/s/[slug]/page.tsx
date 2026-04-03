@@ -7,6 +7,7 @@ import { getEffectivePlan, getPlanLimits } from '@/lib/billing/plans';
 import { LEDDisplay } from '@/components/led/led-display';
 import { DisplayQrCode, Watermark } from '@/components/sign/watermark';
 import { FullscreenButton } from '@/components/sign/fullscreen-button';
+import { MuteButton } from '@/components/sign/mute-button';
 import type { AnimationType, LoopModeType, SpeedType } from '@/lib/utils/constants';
 import type { PublicSign } from '@/lib/validations/sign';
 
@@ -90,6 +91,7 @@ export default async function DisplayPage({ params }: PageProps) {
         {shouldShowOverlay && <Watermark />}
         {shouldShowOverlay && qrCodeDataUrl && <DisplayQrCode qrCodeDataUrl={qrCodeDataUrl} />}
       </div>
+      <MuteButton />
       <FullscreenButton />
     </div>
   );
