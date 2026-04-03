@@ -8,6 +8,7 @@ import {
   PreviewSection,
   PricingSection,
 } from '@/components/marketing';
+import { MuteButton } from '@/components/sign/mute-button';
 
 export const metadata: Metadata = {
   title: 'Letry — Letreiros digitais animados',
@@ -76,6 +77,7 @@ export default async function LandingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <MuteButton />
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-14 px-6 py-14 sm:py-20">
         <HeroSection isAuthenticated={Boolean(user)} />
         <PreviewSection />

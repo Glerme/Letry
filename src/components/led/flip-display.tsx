@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { LoopModeType, SpeedType } from '@/lib/utils/constants';
 import { FLIP_SCRAMBLE_STEPS, FLIP_TIMINGS, getFlipCycleDurationMs } from './loop-utils';
+import { playFlapSound } from './flip-audio';
 
 const CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,!?-';
 
@@ -35,6 +36,7 @@ const FlipTile = ({ targetChar, ledColor, bgColor, charIndex, speed }: FlipTileP
     };
 
     const flip = (nextChar: string, onDone?: () => void) => {
+      playFlapSound();
       setAnimClass(`flip-tile-out-${speed}`);
       addTimeout(() => {
         setDisplayChar(nextChar === ' ' ? '\u00A0' : nextChar);

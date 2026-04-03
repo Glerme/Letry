@@ -28,7 +28,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <div className="inline-flex items-center justify-center">
-            <LetryLogo className="h-16 w-16 drop-shadow-[0_0_20px_rgba(87,244,255,0.55)]" priority />
+            <LetryLogo className="h-16 w-16 mix-blend-screen" priority />
           </div>
           <p className="mt-1 text-sm text-zinc-300">Letreiros digitais animados</p>
         </div>

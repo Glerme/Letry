@@ -7,7 +7,7 @@ interface LetryLogoProps {
 
 export const LetryLogo = ({ className = '', priority = false }: LetryLogoProps) => (
   <Image
-    src="/letry-logo.svg"
+    src="/Letry-L.jpg"
     alt="Logo do Letry"
     width={128}
     height={128}

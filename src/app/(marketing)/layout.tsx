@@ -37,7 +37,7 @@ export default async function MarketingLayout({ children }: MarketingLayoutProps
       <header className="sticky top-0 z-20 border-b border-[var(--cp-border)] bg-black/45 px-6 py-4 backdrop-blur-xl">
         <nav className="mx-auto flex max-w-6xl items-center justify-between">
           <Link href="/" aria-label="Ir para a página inicial" className="inline-flex items-center">
-            <LetryLogo className="h-10 w-10 drop-shadow-[0_0_18px_rgba(87,244,255,0.55)]" priority />
+            <LetryLogo className="h-10 w-10 mix-blend-screen" priority />
           </Link>
           <div className="flex items-center gap-4">
             <Link
